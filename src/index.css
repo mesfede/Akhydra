@@ -1,0 +1,65 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-primary: #2b388f;
+  --color-accent: #00a69b;
+  --color-surface: #f4f9ff;
+  --color-muted: #475569;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-primary/10;
+  }
+  body {
+    @apply bg-white text-primary font-sans antialiased;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display font-bold tracking-tight text-primary;
+  }
+}
+
+.glass-card {
+  @apply bg-white/95 backdrop-blur-md border border-primary/10 shadow-lg;
+}
+
+.tech-grid {
+  background-image: radial-gradient(circle at 1px 1px, #2b388f15 1px, transparent 0);
+  background-size: 40px 40px;
+}
+
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+:root {
+    --background: #ffffff;
+    --foreground: #2b388f;
+    --card: #ffffff;
+    --card-foreground: #2b388f;
+    --popover: #ffffff;
+    --popover-foreground: #2b388f;
+    --primary: #2b388f;
+    --primary-foreground: #ffffff;
+    --secondary: #f4f9ff;
+    --secondary-foreground: #2b388f;
+    --muted: #f4f9ff;
+    --muted-foreground: #475569;
+    --accent: #00a69b;
+    --accent-foreground: #ffffff;
+    --destructive: #ef4444;
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --ring: #00a69b;
+    --radius: 0.75rem;
+}
