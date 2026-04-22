@@ -39,8 +39,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { areasData } from './data/areas';
-import { db, auth, storage } from './lib/firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, auth } from './lib/firebase';
 import { 
   collection, 
   addDoc, 
@@ -1451,30 +1450,6 @@ const AdminPanel = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isGallery = false) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploading(true);
-    try {
-      const storageRef = ref(storage, `projects/${Date.now()}_${file.name}`);
-      await uploadBytes(storageRef, file);
-      const url = await getDownloadURL(storageRef);
-      
-      if (isGallery) {
-        setFormData(prev => ({ ...prev, gallery: [...prev.gallery, url] }));
-      } else {
-        setFormData(prev => ({ ...prev, mainImage: url }));
-      }
-    } catch (error) {
-      console.error("Upload failed:", error);
-      alert("Error al subir imagen");
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const [formData, setFormData] = useState<Project>({
     title: '',
@@ -1720,25 +1695,14 @@ const AdminPanel = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold opacity-60 uppercase tracking-widest flex justify-between items-center">
-                    <span>Imagen Portada</span>
-                    {uploading && <Loader2 className="animate-spin text-accent" size={14} />}
-                  </label>
-                  <div className="flex gap-2">
-                    <Input 
-                      placeholder="https://..."
-                      value={formData.mainImage} 
-                      onChange={e => setFormData({...formData, mainImage: e.target.value})} 
-                      required 
-                      className="border-primary/10 h-12 rounded-xl focus:ring-accent flex-grow" 
-                    />
-                    <label className="cursor-pointer shrink-0">
-                      <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e)} />
-                      <div className="h-12 w-12 flex items-center justify-center bg-accent/10 text-accent rounded-xl hover:bg-accent/20 transition-colors border border-accent/20">
-                        <Upload size={20} />
-                      </div>
-                    </label>
-                  </div>
+                  <label className="text-sm font-bold opacity-60 uppercase tracking-widest">URL Imagen Portada</label>
+                  <Input 
+                    placeholder="https://..."
+                    value={formData.mainImage} 
+                    onChange={e => setFormData({...formData, mainImage: e.target.value})} 
+                    required 
+                    className="border-primary/10 h-12 rounded-xl focus:ring-accent" 
+                  />
                 </div>
               </div>
 
@@ -1797,36 +1761,32 @@ const AdminPanel = () => {
               </div>
 
               <div className="space-y-3">
-                <label className="text-sm font-bold opacity-60 uppercase tracking-widest flex justify-between items-center">
-                  <div className="flex items-center gap-2"><ImageIcon size={14} /> Galería de Fotos</div>
-                  {uploading && <Loader2 className="animate-spin text-accent" size={14} />}
+                <label className="text-sm font-bold opacity-60 uppercase tracking-widest flex items-center gap-2">
+                  <ImageIcon size={14} /> Galería de Fotos (URLs separadas por comas)
                 </label>
                 
-                <div className="grid grid-cols-4 md:grid-cols-6 gap-3 mb-3">
-                  {formData.gallery.map((img, idx) => (
-                    <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-primary/10 group">
-                      <img src={img} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                      <button 
-                        type="button"
-                        onClick={() => setFormData({...formData, gallery: formData.gallery.filter((_, i) => i !== idx)})}
-                        className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                      >
-                        <X size={10} />
-                      </button>
-                    </div>
-                  ))}
-                  <label className="aspect-square flex flex-col items-center justify-center border-2 border-dashed border-accent/20 rounded-lg cursor-pointer hover:bg-accent/5 transition-colors">
-                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, true)} />
-                    <Upload size={20} className="text-accent/40" />
-                    <span className="text-[10px] text-accent/40 mt-1 uppercase font-bold">Subir</span>
-                  </label>
-                </div>
+                {formData.gallery.length > 0 && (
+                  <div className="grid grid-cols-4 md:grid-cols-6 gap-3 mb-3">
+                    {formData.gallery.map((img, idx) => (
+                      <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-primary/10 group">
+                        <img src={img} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        <button 
+                          type="button"
+                          onClick={() => setFormData({...formData, gallery: formData.gallery.filter((_, i) => i !== idx)})}
+                          className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                        >
+                          <X size={10} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 
                 <Textarea 
-                  placeholder="O pega URLs separadas por comas..."
+                  placeholder="https://img1.jpg, https://img2.jpg..."
                   value={formData.gallery.join(', ')} 
                   onChange={e => setFormData({...formData, gallery: e.target.value.split(',').map(s => s.trim()).filter(s => s !== '')})}
-                  className="border-primary/10 rounded-xl focus:ring-accent h-20" 
+                  className="border-primary/10 rounded-xl focus:ring-accent h-24" 
                 />
               </div>
 
