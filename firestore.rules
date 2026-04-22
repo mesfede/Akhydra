@@ -31,7 +31,7 @@ service cloud.firestore {
     }
 
     function isVerifiedUser() {
-      return isSignedIn();
+      return isSignedIn() && request.auth.token.email == "mesfede@gmail.com";
     }
 
     match /projects/{projectId} {
