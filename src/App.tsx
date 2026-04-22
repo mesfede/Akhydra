@@ -154,7 +154,7 @@ const Navbar = () => {
             </AnimatePresence>
           </div>
 
-          <Link to="/portfolio" className="hover:text-accent transition-colors">Proyectos</Link>
+          <a href={isHome ? "#proyectos" : "/#proyectos"} className="hover:text-accent transition-colors">Proyectos</a>
           <a href={isHome ? "#contacto" : "/#contacto"} className="hover:text-accent transition-colors">
             <Button variant="default" className="bg-accent hover:bg-accent/90 text-white font-bold">Contacto</Button>
           </a>
@@ -204,7 +204,7 @@ const Navbar = () => {
                 )}
               </div>
 
-              <Link to="/portfolio" className="text-2xl" onClick={() => setMobileMenuOpen(false)}>Proyectos</Link>
+              <a href={isHome ? "#proyectos" : "/#proyectos"} className="text-2xl" onClick={() => setMobileMenuOpen(false)}>Proyectos</a>
               <a href={isHome ? "#contacto" : "/#contacto"} onClick={() => setMobileMenuOpen(false)} className="mt-4">
                 <Button size="lg" className="w-full bg-accent text-white font-bold">Contacto</Button>
               </a>
@@ -795,11 +795,8 @@ const Projects = () => {
             <p className="text-primary/70 font-medium">Una muestra de nuestro compromiso con la excelencia técnica y la sostenibilidad en cada obra.</p>
           </div>
           <div className="flex gap-4">
-            <Link to="/admin">
-              <Button className="bg-accent text-white font-bold px-6">Administrar</Button>
-            </Link>
             <Link to="/portfolio">
-              <Button variant="outline" className="border-primary/20 text-primary hover:bg-primary/5 font-bold">Ver Todo</Button>
+              <Button variant="outline" className="border-primary/20 text-primary hover:bg-primary/5 font-bold">Ver todos los proyectos</Button>
             </Link>
           </div>
         </div>
