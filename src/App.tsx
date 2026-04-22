@@ -20,6 +20,8 @@ import {
   Globe,
   CheckCircle2,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Sun,
   Cog,
   Plus,
@@ -847,6 +849,59 @@ const Projects = () => {
 };
 
 const Contact = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [formData, setContactFormData] = useState({
+    nombre: '',
+    empresa: '',
+    email: '',
+    tipo: 'Ingeniería Hidráulica',
+    mensaje: ''
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Submit triggered", formData);
+    setIsSubmitting(true);
+    
+    try {
+      const response = await fetch("https://formsubmit.co/ajax/mesfede@gmail.com", {
+        method: "POST",
+        headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          ...formData,
+          _subject: `Nueva consulta AKHYDRA: ${formData.nombre}`,
+          _template: 'table'
+        })
+      });
+
+      console.log("Response received", response.status);
+
+      if (response.ok) {
+        setIsSuccess(true);
+        setContactFormData({
+          nombre: '',
+          empresa: '',
+          email: '',
+          tipo: 'Ingeniería Hidráulica',
+          mensaje: ''
+        });
+      } else {
+        const errorData = await response.json();
+        console.error("Submission failed", errorData);
+        throw new Error("Error en el envío");
+      }
+    } catch (error) {
+      console.error("Catch error:", error);
+      alert("Hubo un problema al enviar tu consulta. Por favor, reintenta.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <section id="contacto" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-6">
@@ -886,25 +941,64 @@ const Contact = () => {
             </div>
           </div>
 
-          <Card className="p-8 shadow-2xl border-primary/5 bg-surface/30">
-            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+          <Card className="p-8 shadow-2xl border-primary/5 bg-surface/30 relative overflow-hidden">
+            <AnimatePresence>
+              {isSuccess && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="absolute inset-0 z-20 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-8 text-center"
+                >
+                  <div className="w-20 h-20 bg-accent/10 text-accent rounded-full flex items-center justify-center mb-6">
+                    <CheckCircle2 size={40} />
+                  </div>
+                  <h3 className="text-2xl font-bold text-primary mb-2">¡Mensaje Enviado!</h3>
+                  <p className="text-primary/60 mb-8">Gracias por contactarnos. Te responderemos a la brevedad.</p>
+                  <Button onClick={() => setIsSuccess(false)} variant="outline" className="rounded-full">Enviar otro mensaje</Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-primary">Nombre</label>
-                  <Input placeholder="Tu nombre" className="border-primary/20 focus:border-accent" />
+                  <Input 
+                    required
+                    placeholder="Tu nombre" 
+                    className="border-primary/20 focus:border-accent"
+                    value={formData.nombre}
+                    onChange={(e) => setContactFormData({...formData, nombre: e.target.value})}
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-primary">Empresa</label>
-                  <Input placeholder="Nombre de empresa" className="border-primary/20 focus:border-accent" />
+                  <Input 
+                    placeholder="Nombre de empresa" 
+                    className="border-primary/20 focus:border-accent"
+                    value={formData.empresa}
+                    onChange={(e) => setContactFormData({...formData, empresa: e.target.value})}
+                  />
                 </div>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-bold text-primary">Email Corporativo</label>
-                <Input type="email" placeholder="email@empresa.com" className="border-primary/20 focus:border-accent" />
+                <Input 
+                  required
+                  type="email" 
+                  placeholder="email@empresa.com" 
+                  className="border-primary/20 focus:border-accent"
+                  value={formData.email}
+                  onChange={(e) => setContactFormData({...formData, email: e.target.value})}
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-bold text-primary">Tipo de Proyecto</label>
-                <select className="w-full h-10 px-3 rounded-md border border-primary/20 bg-white text-sm focus:border-accent outline-none">
+                <select 
+                  className="w-full h-10 px-3 rounded-md border border-primary/20 bg-white text-sm focus:border-accent outline-none"
+                  value={formData.tipo}
+                  onChange={(e) => setContactFormData({...formData, tipo: e.target.value})}
+                >
                   <option>Ingeniería Hidráulica</option>
                   <option>Infraestructura Vial</option>
                   <option>Consultoría Técnica</option>
@@ -913,9 +1007,28 @@ const Contact = () => {
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-bold text-primary">Mensaje</label>
-                <Textarea placeholder="Cuéntanos sobre tu proyecto..." className="min-h-[120px] border-primary/20 focus:border-accent" />
+                <Textarea 
+                  required
+                  placeholder="Cuéntanos sobre tu proyecto..." 
+                  className="min-h-[120px] border-primary/20 focus:border-accent"
+                  value={formData.mensaje}
+                  onChange={(e) => setContactFormData({...formData, mensaje: e.target.value})}
+                />
               </div>
-              <Button className="w-full bg-accent hover:bg-accent/90 h-12 text-lg text-white font-bold shadow-lg shadow-accent/20">Enviar Consulta</Button>
+              <Button 
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-accent hover:bg-accent/90 h-12 text-lg text-white font-bold shadow-lg shadow-accent/20 flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="animate-spin" size={20} />
+                    Enviando...
+                  </>
+                ) : (
+                  'Enviar Consulta'
+                )}
+              </Button>
             </form>
           </Card>
         </div>
@@ -1086,6 +1199,7 @@ const ProjectDetailPage = () => {
   const { projectId } = useParams();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -1122,8 +1236,73 @@ const ProjectDetailPage = () => {
     </div>
   );
 
+  const handlePrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (selectedImage !== null && project?.gallery) {
+      setSelectedImage((selectedImage - 1 + project.gallery.length) % project.gallery.length);
+    }
+  };
+
+  const handleNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (selectedImage !== null && project?.gallery) {
+      setSelectedImage((selectedImage + 1) % project.gallery.length);
+    }
+  };
+
   return (
     <div className="pt-24 pb-24 bg-white">
+      {/* Lightbox Modal */}
+      <AnimatePresence>
+        {selectedImage !== null && project?.gallery && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-primary/95 backdrop-blur-xl flex items-center justify-center p-4"
+            onClick={() => setSelectedImage(null)}
+          >
+            <motion.button 
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors"
+              onClick={() => setSelectedImage(null)}
+            >
+              <X size={48} strokeWidth={1} />
+            </motion.button>
+
+            <button 
+              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white transition-all"
+              onClick={handlePrev}
+            >
+              <ChevronLeft size={32} />
+            </button>
+
+            <button 
+              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white transition-all"
+              onClick={handleNext}
+            >
+              <ChevronRight size={32} />
+            </button>
+
+            <motion.div
+              layoutId={`gallery-${selectedImage}`}
+              className="max-w-5xl w-full aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl relative"
+            >
+              <img 
+                src={project.gallery[selectedImage]} 
+                alt="Fullscreen" 
+                className="w-full h-full object-contain md:object-cover"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-md px-6 py-2 rounded-full text-white/80 font-mono text-sm">
+                {selectedImage + 1} / {project.gallery.length}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Hero Section */}
       <section className="relative h-[60vh] overflow-hidden mb-16">
         <motion.div 
@@ -1226,8 +1405,10 @@ const ProjectDetailPage = () => {
                 {project.gallery.map((img, idx) => (
                   <motion.div
                     key={idx}
+                    layoutId={`gallery-${idx}`}
                     whileHover={{ scale: 1.05, rotate: idx % 2 === 0 ? 1 : -1 }}
-                    className="aspect-[4/3] rounded-2xl overflow-hidden shadow-lg border border-primary/5 cursor-zoom-in"
+                    className="aspect-[4/3] rounded-2xl overflow-hidden shadow-lg border border-primary/5 cursor-zoom-in relative group"
+                    onClick={() => setSelectedImage(idx)}
                   >
                     <img 
                       src={img} 
@@ -1235,6 +1416,11 @@ const ProjectDetailPage = () => {
                       className="w-full h-full object-cover"
                       referrerPolicy="no-referrer"
                     />
+                    <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+                        <Waves size={24} className="animate-pulse" />
+                      </div>
+                    </div>
                   </motion.div>
                 ))}
               </div>
