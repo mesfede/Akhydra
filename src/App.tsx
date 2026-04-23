@@ -33,7 +33,8 @@ import {
   ExternalLink,
   Image as ImageIcon,
   Loader2,
-  Lock
+  Lock,
+  Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -83,16 +84,29 @@ const RenderMainArea = ({ mainArea, className = "" }: { mainArea: string, classN
 
 // --- Helper Functions ---
 const ScrollToTop = () => {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
+  
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+    if (!hash) {
+      window.scrollTo(0, 0);
+    } else {
+      // Small timeout to allow the element to be rendered
+      setTimeout(() => {
+        const id = hash.replace('#', '');
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  }, [pathname, hash]);
+  
   return null;
 };
 
 // --- Components ---
 
-const AnimatedLogo = ({ onClick, imgClassName, className }: { onClick?: () => void, imgClassName?: string, className?: string }) => {
+const AnimatedLogo = ({ onClick, imgClassName, className, showShadow = true }: { onClick?: () => void, imgClassName?: string, className?: string, showShadow?: boolean }) => {
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -300,7 +314,7 @@ const AnimatedLogo = ({ onClick, imgClassName, className }: { onClick?: () => vo
         <img 
           src="https://akhydra.com.ar/wp-content/uploads/2025/11/logo-akhydra-vect.svg" 
           alt="AKHYDRA Logo" 
-          className={`h-12 md:h-14 w-auto drop-shadow-md transition-all duration-300 ${imgClassName || ''}`}
+          className={`h-12 md:h-14 w-auto transition-all duration-300 ${showShadow ? 'drop-shadow-md' : ''} ${imgClassName || ''}`}
           referrerPolicy="no-referrer"
         />
       </motion.div>
@@ -1638,7 +1652,7 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-12 mb-12">
           <div className="col-span-2">
             <div className="flex items-center text-white mb-6">
-              <AnimatedLogo imgClassName="brightness-0 invert" />
+              <AnimatedLogo imgClassName="brightness-0 invert" showShadow={false} />
             </div>
             <p className="max-w-sm mb-8 text-white/80 font-medium">Líderes en ingeniería de fluidos e infraestructura resiliente. Comprometidos con la innovación técnica y el desarrollo sostenible.</p>
             <div className="flex gap-4">
@@ -2016,15 +2030,29 @@ const ProjectDetailPage = () => {
             </section>
           )}
 
-          <Card className="p-10 bg-primary text-white rounded-[2rem] border-none shadow-2xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-accent/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
-            <h3 className="text-2xl font-bold mb-4 relative z-10">¿Te interesa este tipo de soluciones?</h3>
-            <p className="text-white/70 mb-8 leading-relaxed relative z-10">Consúltanos cómo podemos adaptar nuestra experiencia técnica a las necesidades específicas de tu empresa.</p>
-            <Link to="/#contacto">
-              <Button className="w-full bg-accent hover:bg-accent/90 text-white font-bold h-14 rounded-2xl relative z-10 shadow-xl shadow-accent/20">
-                Iniciar Consulta
-              </Button>
-            </Link>
+          <Card className="p-10 bg-white border-2 border-accent/20 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
+            <div className="absolute -top-12 -right-12 w-48 h-48 bg-accent/5 rounded-full blur-3xl group-hover:bg-accent/10 transition-colors duration-700" />
+            <div className="relative z-10 text-left">
+              <div className="w-14 h-14 bg-accent text-white rounded-2xl flex items-center justify-center mb-8 shadow-lg shadow-accent/20 group-hover:scale-110 transition-transform duration-500">
+                <Mail size={28} />
+              </div>
+              <h3 className="text-3xl font-display font-bold mb-4 text-primary leading-tight">
+                ¿Buscas una solución <span className="text-accent italic">a medida</span>?
+              </h3>
+              <div className="space-y-4 mb-8">
+                <p className="text-primary/70 text-lg leading-relaxed">
+                  <span className="font-bold text-primary">Consúltanos</span> cómo podemos adaptar nuestra <span className="text-accent underline decoration-accent/20 decoration-4 underline-offset-4">experiencia técnica</span> a las necesidades específicas de tu empresa o proyecto.
+                </p>
+                <div className="h-1 w-12 bg-accent/30 rounded-full" />
+              </div>
+              <Link to="/#contacto">
+                <Button className="w-full bg-accent hover:bg-primary text-white font-bold h-16 rounded-2xl shadow-xl shadow-accent/20 group/btn transition-all flex items-center justify-center gap-3">
+                  Iniciar Consulta Técnica
+                  <ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              <p className="mt-4 text-center text-[10px] font-mono font-bold text-primary/30 uppercase tracking-widest">Respuesta en menos de 24hs</p>
+            </div>
           </Card>
         </div>
       </div>
@@ -2042,7 +2070,7 @@ const AdminPanel = () => {
   const [formData, setFormData] = useState<Project>({
     title: '',
     location: '',
-    mainArea: 'Hidráulica',
+    mainArea: '',
     description: '',
     mainImage: '',
     gallery: [],
@@ -2106,7 +2134,7 @@ const AdminPanel = () => {
         await addDoc(collection(db, 'projects'), { ...formData, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
       }
       setFormData({
-        title: '', location: '', mainArea: 'Hidráulica', description: '', mainImage: '', gallery: [],
+        title: '', location: '', mainArea: '', description: '', mainImage: '', gallery: [],
         details: { hidraulica: '', vial: '', ambiental: '' }, createdAt: null, updatedAt: null
       });
       await fetchProjects();
@@ -2272,15 +2300,40 @@ const AdminPanel = () => {
               </div>
               
               <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold opacity-60 uppercase tracking-widest">Área(s) Técnica(s)</label>
+                <div className="space-y-4">
+                  <label className="text-sm font-bold opacity-60 uppercase tracking-widest block">Seleccionar Áreas Técnicas</label>
+                  <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto p-4 bg-primary/5 rounded-2xl border border-primary/10">
+                    {areasData.map((area) => {
+                      const isSelected = formData.mainArea.includes(area.name);
+                      return (
+                        <div 
+                          key={area.id} 
+                          className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-accent/10 border border-accent/20' : 'hover:bg-white'}`}
+                          onClick={() => {
+                            const currentAreas = formData.mainArea.split(' / ').filter(a => a.trim() !== '');
+                            let newAreas;
+                            if (isSelected) {
+                              newAreas = currentAreas.filter(a => a !== area.name);
+                            } else {
+                              newAreas = [...currentAreas, area.name];
+                            }
+                            setFormData({ ...formData, mainArea: newAreas.join(' / ') });
+                          }}
+                        >
+                          <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isSelected ? 'bg-accent border-accent text-white' : 'border-primary/20 bg-white'}`}>
+                            {isSelected && <Check size={10} strokeWidth={4} />}
+                          </div>
+                          <span className={`text-[10px] font-bold uppercase transition-colors ${isSelected ? 'text-accent' : 'text-primary/60'}`}>{area.name}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
                   <Input 
-                    placeholder="Ej: Hidráulica / Vial"
+                    type="hidden"
                     value={formData.mainArea} 
-                    onChange={e => setFormData({...formData, mainArea: e.target.value})} 
                     required 
-                    className="border-primary/10 h-12 rounded-xl focus:ring-accent" 
                   />
+                  <p className="text-[10px] text-primary/40 italic">* Selecciona las áreas para que el proyecto aparezca automáticamente en sus páginas correspondientes.</p>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-bold opacity-60 uppercase tracking-widest">URL Imagen Portada</label>
@@ -2619,6 +2672,38 @@ const StaffPage = () => {
 const AreaDetail = () => {
   const { areaId } = useParams();
   const area = areasData.find(a => a.id === areaId);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      if (!area) return;
+      try {
+        setLoading(true);
+        // Map common area names or IDs if they differ between areasData and project mainArea field
+        // We'll search for the area name in the mainArea string of projects
+        const q = query(collection(db, 'projects'));
+        const querySnapshot = await getDocs(q);
+        const projectsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as Project);
+        
+        // Filter projects that match this area in their mainArea string (case insensitive search)
+        const areaNameLower = area.name.toLowerCase();
+        const related = projectsData.filter(p => 
+          p.mainArea.toLowerCase().includes(areaNameLower) || 
+          areaNameLower.includes(p.mainArea.toLowerCase())
+        );
+
+        // Sort by date
+        related.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+        setProjects(related.slice(0, 4)); // Show top 4
+      } catch (error) {
+        console.error("Error fetching related projects:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProjects();
+  }, [area]);
 
   if (!area) return <div className="py-40 text-center text-2xl font-bold">Área no encontrada</div>;
 
@@ -2722,7 +2807,7 @@ const AreaDetail = () => {
         </div>
       </section>
 
-      {/* Related Projects Section Placeholder */}
+      {/* Related Projects Section Dynamically Loaded */}
       <section className="bg-primary py-24 text-white overflow-hidden relative">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[120px]" />
         <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -2731,16 +2816,47 @@ const AreaDetail = () => {
               <h2 className="text-4xl md:text-6xl font-display font-bold mb-4 tracking-tighter">Proyectos de {area.name}</h2>
               <p className="text-white/60 text-lg max-w-xl">Descubre cómo aplicamos nuestra experiencia en {area.name} para resolver problemas de infraestructura en el mundo real.</p>
             </div>
-            <Button className="bg-white text-primary hover:bg-white/90 font-bold px-8 h-14 rounded-full">Próximamente Proyectos</Button>
+            <Link to="/portfolio">
+              <Button className="bg-white text-primary hover:bg-white/90 font-bold px-8 h-14 rounded-full">Ver Portfolio Completo</Button>
+            </Link>
           </div>
           
-          <div className="grid md:grid-cols-4 gap-4 opacity-30">
-            {[1,2,3,4].map(i => (
-              <div key={i} className="aspect-video bg-white/5 rounded-xl border border-white/10 flex items-center justify-center font-mono text-xs uppercase tracking-widest">
-                Placeholder_Project_{i}
-              </div>
-            ))}
-          </div>
+          {loading ? (
+             <div className="flex flex-col items-center justify-center py-12 gap-4">
+              <Loader2 className="animate-spin text-accent" size={32} />
+              <p className="text-white/40 font-mono text-xs uppercase tracking-widest">SINCRO_DATA...</p>
+            </div>
+          ) : projects.length > 0 ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {projects.map((p, idx) => (
+                <motion.div
+                  key={p.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <Link to={`/proyecto/${p.id}`} className="group block">
+                    <div className="relative aspect-video rounded-2xl overflow-hidden mb-4 border border-white/10 shadow-lg">
+                      <img 
+                        src={p.mainImage} 
+                        alt={p.title} 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <h4 className="font-bold text-white group-hover:text-accent transition-colors truncate">{p.title}</h4>
+                    <div className="text-white/40 text-[10px] font-mono mt-1 uppercase">{p.location}</div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-20 text-center bg-white/5 rounded-3xl border border-dashed border-white/10">
+              <p className="text-white/40 font-medium">No se encontraron proyectos específicos para esta área todavía.</p>
+            </div>
+          )}
         </div>
       </section>
 

@@ -12,14 +12,14 @@ export const areasData: AreaInfo[] = [
     id: "agrimensura",
     name: "Agrimensura",
     description: "Medición y delimitación de predios, relevamientos topográficos y cartografía.",
-    image: "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1200",
+    image: "https://akhydra.com.ar/wp-content/uploads/2021/05/agrimensura_caratula.jpg",
     fullDescription: "Nuestro departamento de agrimensura combina tecnología GPS de última generación con métodos tradicionales de precisión para garantizar la exacta delimitación de parcelas, relevamientos altimétricos y apoyo técnico a proyectos de infraestructura de gran escala."
   },
   {
     id: "ambiental",
     name: "Ambiental",
     description: "Estudios de impacto, gestión de residuos y soluciones sostenibles.",
-    image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1200",
+    image: "https://akhydra.com.ar/wp-content/uploads/2021/05/ambiental_caratula.jpg",
     fullDescription: "Brindamos consultoría ambiental integral, realizando evaluaciones de impacto ambiental (EIA), planes de gestión de residuos y estrategias de mitigación para asegurar que cada proyecto cumpla con las normativas vigentes y respete el ecosistema local."
   },
   {
