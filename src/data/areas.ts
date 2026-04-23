@@ -26,7 +26,7 @@ export const areasData: AreaInfo[] = [
     id: "arquitectura",
     name: "Arquitectura",
     description: "Diseño espacial, funcional y estético de edificaciones dinámicas.",
-    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1200",
+    image: "https://akhydra.com.ar/wp-content/uploads/2021/05/arquitectura_caratula.jpg",
     fullDescription: "Integramos la ingeniería con la arquitectura para crear espacios que no solo sean estructuralmente sólidos, sino también funcionales y estéticamente inspiradores, optimizando el uso de recursos y mejorando la calidad de vida de los usuarios."
   },
   {

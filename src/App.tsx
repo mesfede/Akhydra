@@ -34,7 +34,10 @@ import {
   Image as ImageIcon,
   Loader2,
   Lock,
-  Check
+  Check,
+  Instagram,
+  Linkedin,
+  Facebook
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -1651,14 +1654,24 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-4 gap-12 mb-12">
           <div className="col-span-2">
-            <div className="flex items-center text-white mb-6">
-              <AnimatedLogo imgClassName="brightness-0 invert" showShadow={false} />
+            <div className="flex items-center mb-8">
+              <div className="bg-white px-4 py-2 rounded-xl shadow-lg border border-white/10 group transition-transform hover:scale-105 duration-300">
+                <div className="scale-75 origin-left">
+                  <AnimatedLogo showShadow={false} />
+                </div>
+              </div>
             </div>
             <p className="max-w-sm mb-8 text-white/80 font-medium">Líderes en ingeniería de fluidos e infraestructura resiliente. Comprometidos con la innovación técnica y el desarrollo sostenible.</p>
             <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent hover:text-white transition-colors cursor-pointer">
-                <Globe size={20} />
-              </div>
+              <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent hover:text-white transition-all cursor-pointer">
+                <Instagram size={18} />
+              </a>
+              <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent hover:text-white transition-all cursor-pointer">
+                <Linkedin size={18} />
+              </a>
+              <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent hover:text-white transition-all cursor-pointer">
+                <Facebook size={18} />
+              </a>
             </div>
           </div>
           <div>
@@ -1679,16 +1692,36 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-medium">
-          <div className="flex items-center gap-2">
+        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] uppercase tracking-wider font-bold">
+          <div className="flex items-center gap-2 text-white/40">
             <p>© 2026 AKHYDRA S.A. Todos los derechos reservados.</p>
             <Link to="/admin" className="opacity-10 hover:opacity-100 transition-opacity">
               <Lock size={10} />
             </Link>
           </div>
-          <div className="flex gap-8">
-            <a href="#" className="hover:text-white">Privacidad</a>
-            <a href="#" className="hover:text-white">Términos</a>
+          
+          <div className="flex items-center gap-6">
+            <div className="flex gap-8 text-white/40">
+              <a href="#" className="hover:text-white transition-colors">Privacidad</a>
+              <a href="#" className="hover:text-white transition-colors">Términos</a>
+            </div>
+
+            <div className="h-4 w-[1px] bg-white/10 hidden md:block" />
+
+            <a 
+              href="https://www.unke.com.ar" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 group transition-all"
+            >
+              <span className="text-white/30 group-hover:text-white/60 transition-colors">Desarrollado por</span>
+              <img 
+                src="https://unke.com.ar/img/logo/logo.png" 
+                alt="UNKE" 
+                className="h-4 w-auto grayscale brightness-200 contrast-100 opacity-40 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-500"
+                referrerPolicy="no-referrer"
+              />
+            </a>
           </div>
         </div>
       </div>
@@ -1958,65 +1991,68 @@ const ProjectDetailPage = () => {
           </section>
 
           {(project.details.hidraulica || project.details.vial || project.details.ambiental) && (
-            <section className="space-y-8">
-              <h2 className="text-3xl font-bold text-primary mb-8 underline decoration-accent/20">Especialidades Aplicadas</h2>
-              <div className="grid gap-6">
+            <section className="space-y-12">
+              <h2 className="text-3xl font-bold text-primary mb-8 flex items-center gap-3">
+                <div className="w-8 h-1 bg-accent" />
+                Especialidades Aplicadas
+              </h2>
+              <div className="space-y-12">
                 {project.details.hidraulica && (
-                  <Card className="p-8 border-primary/5 bg-surface/30 rounded-3xl group hover:border-accent/20 transition-colors">
+                  <div className="group transition-all">
                     <div className="flex items-center gap-4 mb-4 text-accent">
-                      <Waves size={32} />
+                      <Waves size={24} />
                       <h3 className="text-2xl font-bold text-primary">Área Hidráulica</h3>
                     </div>
-                    <div className="text-primary/70 leading-relaxed whitespace-pre-wrap pl-12 border-l border-primary/10">
+                    <div className="text-primary/70 text-lg leading-relaxed whitespace-pre-wrap pl-10 border-l-2 border-accent/20 group-hover:border-accent transition-colors">
                       {project.details.hidraulica}
                     </div>
-                  </Card>
+                  </div>
                 )}
                 {project.details.vial && (
-                  <Card className="p-8 border-primary/5 bg-surface/30 rounded-3xl group hover:border-accent/20 transition-colors">
+                  <div className="group transition-all">
                     <div className="flex items-center gap-4 mb-4 text-accent">
-                      <Building2 size={32} />
+                      <Building2 size={24} />
                       <h3 className="text-2xl font-bold text-primary">Área Vial</h3>
                     </div>
-                    <div className="text-primary/70 leading-relaxed whitespace-pre-wrap pl-12 border-l border-primary/10">
+                    <div className="text-primary/70 text-lg leading-relaxed whitespace-pre-wrap pl-10 border-l-2 border-accent/20 group-hover:border-accent transition-colors">
                       {project.details.vial}
                     </div>
-                  </Card>
+                  </div>
                 )}
                 {project.details.ambiental && (
-                  <Card className="p-8 border-primary/5 bg-surface/30 rounded-3xl group hover:border-accent/20 transition-colors">
+                  <div className="group transition-all">
                     <div className="flex items-center gap-4 mb-4 text-accent">
-                      <HardHat size={32} />
+                      <HardHat size={24} />
                       <h3 className="text-2xl font-bold text-primary">Área Ambiental</h3>
                     </div>
-                    <div className="text-primary/70 leading-relaxed whitespace-pre-wrap pl-12 border-l border-primary/10">
+                    <div className="text-primary/70 text-lg leading-relaxed whitespace-pre-wrap pl-10 border-l-2 border-accent/20 group-hover:border-accent transition-colors">
                       {project.details.ambiental}
                     </div>
-                  </Card>
+                  </div>
                 )}
               </div>
             </section>
           )}
-        </div>
 
-        {/* Sidebar / Gallery */}
-        <div className="space-y-12">
           {project.gallery && project.gallery.length > 0 && (
-            <section>
-              <h3 className="text-xl font-bold text-primary mb-6 uppercase tracking-wider font-mono">Registro_Fotográfico</h3>
-              <div className="grid gap-4">
+            <section className="pt-8">
+              <h3 className="text-2xl font-bold text-primary mb-8 flex items-center gap-3">
+                <div className="w-8 h-1 bg-accent" />
+                Registro Fotográfico
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {project.gallery.map((img, idx) => (
                   <motion.div
                     key={idx}
                     layoutId={`gallery-${idx}`}
-                    whileHover={{ scale: 1.05, rotate: idx % 2 === 0 ? 1 : -1 }}
-                    className="aspect-[4/3] rounded-2xl overflow-hidden shadow-lg border border-primary/5 cursor-zoom-in relative group"
+                    whileHover={{ scale: 1.02 }}
+                    className="aspect-[4/3] rounded-3xl overflow-hidden shadow-lg border border-primary/5 cursor-zoom-in relative group"
                     onClick={() => setSelectedImage(idx)}
                   >
                     <img 
                       src={img} 
                       alt={`Galeria ${idx}`} 
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -2029,29 +2065,34 @@ const ProjectDetailPage = () => {
               </div>
             </section>
           )}
+        </div>
 
-          <Card className="p-10 bg-white border-2 border-accent/20 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
+        {/* Sidebar / CTA */}
+        <div className="space-y-12">
+          <Card className="p-10 bg-white border-[0.5px] border-accent/15 rounded-[2.5rem] shadow-2xl shadow-primary/5 relative overflow-hidden group sticky top-32">
             <div className="absolute -top-12 -right-12 w-48 h-48 bg-accent/5 rounded-full blur-3xl group-hover:bg-accent/10 transition-colors duration-700" />
             <div className="relative z-10 text-left">
-              <div className="w-14 h-14 bg-accent text-white rounded-2xl flex items-center justify-center mb-8 shadow-lg shadow-accent/20 group-hover:scale-110 transition-transform duration-500">
-                <Mail size={28} />
+              <div className="flex items-start gap-5 mb-6">
+                <div className="w-12 h-12 bg-accent/10 text-accent rounded-xl flex items-center justify-center shrink-0 shadow-sm transition-transform duration-500 group-hover:scale-110">
+                  <Mail size={24} />
+                </div>
+                <h3 className="text-2xl font-display font-bold text-primary leading-tight pt-1">
+                  ¿Buscas una solución <span className="text-accent italic">a medida</span>?
+                </h3>
               </div>
-              <h3 className="text-3xl font-display font-bold mb-4 text-primary leading-tight">
-                ¿Buscas una solución <span className="text-accent italic">a medida</span>?
-              </h3>
               <div className="space-y-4 mb-8">
-                <p className="text-primary/70 text-lg leading-relaxed">
-                  <span className="font-bold text-primary">Consúltanos</span> cómo podemos adaptar nuestra <span className="text-accent underline decoration-accent/20 decoration-4 underline-offset-4">experiencia técnica</span> a las necesidades específicas de tu empresa o proyecto.
+                <p className="text-primary/70 text-base leading-relaxed">
+                  <span className="font-bold text-primary">Consúltanos</span> cómo podemos adaptar nuestra <span className="text-accent underline decoration-accent/20 decoration-4 underline-offset-4 font-bold">experiencia técnica</span> a las necesidades de tu proyecto.
                 </p>
-                <div className="h-1 w-12 bg-accent/30 rounded-full" />
+                <div className="h-[1px] w-12 bg-accent/20 rounded-full" />
               </div>
               <Link to="/#contacto">
                 <Button className="w-full bg-accent hover:bg-primary text-white font-bold h-16 rounded-2xl shadow-xl shadow-accent/20 group/btn transition-all flex items-center justify-center gap-3">
-                  Iniciar Consulta Técnica
+                  Iniciar Consulta
                   <ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <p className="mt-4 text-center text-[10px] font-mono font-bold text-primary/30 uppercase tracking-widest">Respuesta en menos de 24hs</p>
+              <p className="mt-4 text-[10px] font-mono font-bold text-primary/30 uppercase tracking-widest text-center">Respuesta en menos de 24hs</p>
             </div>
           </Card>
         </div>
