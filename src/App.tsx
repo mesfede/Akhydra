@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useParams, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useParams, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import { 
   Droplets, 
@@ -25,6 +25,8 @@ import {
   ChevronRight,
   Sun,
   Cog,
+  Users,
+  Briefcase,
   Plus,
   Trash2,
   Edit,
@@ -90,6 +92,229 @@ const ScrollToTop = () => {
 
 // --- Components ---
 
+const AnimatedLogo = ({ onClick, imgClassName, className }: { onClick?: () => void, imgClassName?: string, className?: string }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  const handleClick = () => {
+    if (location.pathname === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      navigate('/');
+    }
+    if (onClick) onClick();
+  };
+  
+  return (
+    <div className={`relative group cursor-pointer flex items-center ${className || ''}`} onClick={handleClick}>
+      {/* Drafting/Technical background elements with continuous motion */}
+      <div className="absolute -inset-x-16 -inset-y-8 pointer-events-none overflow-hidden">
+        <motion.svg
+          width="160%"
+          height="160%"
+          viewBox="0 0 320 140"
+          className="w-full h-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          whileTap="tap"
+        >
+          {/* Subtle Dotted Grid Background */}
+          <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="0.5" fill="currentColor" className="text-accent/10" />
+          </pattern>
+          <rect width="100%" height="100%" fill="url(#grid)" />
+
+          {/* Burst Dotted Circles (Only appear on tap) */}
+          <motion.circle
+            cx="160" cy="70" r="0"
+            stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 4" fill="none"
+            className="text-accent"
+            variants={{
+              tap: { 
+                r: [0, 150], 
+                opacity: [1, 0],
+                transition: { duration: 0.5, ease: "easeOut" }
+              }
+            }}
+          />
+          <motion.circle
+            cx="160" cy="70" r="0"
+            stroke="currentColor" strokeWidth="1" strokeDasharray="1 3" fill="none"
+            className="text-accent/40"
+            variants={{
+              tap: { 
+                r: [0, 200], 
+                opacity: [0.8, 0],
+                transition: { duration: 0.6, delay: 0.1, ease: "easeOut" }
+              }
+            }}
+          />
+
+          {/* Moving Vertical Grid Lines */}
+          <motion.g
+            animate={{ x: [0, 30, 0] }}
+            transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+          >
+            {[10, 30, 50, 70, 230, 250, 270, 290, 310].map((x, i) => (
+              <line 
+                key={i} 
+                x1={x} y1="0" x2={x} y2="140" 
+                stroke="currentColor" 
+                strokeWidth="0.3" 
+                className="text-accent/15" 
+              />
+            ))}
+          </motion.g>
+          
+          {/* Dotted Horizontal Lines (Measurement Style) */}
+          <motion.line
+            x1="0" y1="35" x2="320" y2="35"
+            stroke="currentColor"
+            strokeWidth="0.5"
+            strokeDasharray="2 4"
+            className="text-accent/20"
+            animate={{ opacity: [0.1, 0.4, 0.1] }}
+            transition={{ repeat: Infinity, duration: 3 }}
+            variants={{
+              tap: { strokeWidth: 1.5, opacity: 1, scaleY: 2 }
+            }}
+          />
+          <motion.line
+            x1="0" y1="105" x2="320" y2="105"
+            stroke="currentColor"
+            strokeWidth="0.5"
+            strokeDasharray="2 4"
+            className="text-accent/20"
+            animate={{ opacity: [0.1, 0.4, 0.1] }}
+            transition={{ repeat: Infinity, duration: 3, delay: 1.5 }}
+            variants={{
+              tap: { strokeWidth: 1.5, opacity: 1, scaleY: 2 }
+            }}
+          />
+
+          {/* Principal Horizontal 'Fillete' with pulse and tick marks */}
+          <motion.g
+            initial={{ pathLength: 0 }}
+            whileHover={{ 
+              opacity: [0.4, 0.7, 0.4],
+              transition: { opacity: { repeat: Infinity, duration: 2.5 } } 
+            }}
+            variants={{
+              tap: { scale: 1.05, opacity: 1 }
+            }}
+          >
+            <line x1="10" y1="70" x2="310" y2="70" stroke="currentColor" strokeWidth="0.8" className="text-accent/30" />
+            {/* Tick marks along the line */}
+            {[40, 80, 120, 160, 200, 240, 280].map((t, i) => (
+              <line key={i} x1={t} y1="67" x2={t} y2="73" stroke="currentColor" strokeWidth="1" className="text-accent/50" />
+            ))}
+          </motion.g>
+
+          {/* Technical Crosshairs (Reactive on tap) */}
+          <motion.g
+            animate={{ 
+              rotate: [0, 90, 180, 270, 360],
+              opacity: [0.2, 0.5, 0.2]
+            }}
+            transition={{ rotate: { repeat: Infinity, duration: 20, ease: "linear" }, opacity: { repeat: Infinity, duration: 2 } }}
+            className="text-accent/40"
+            variants={{
+              tap: { scale: 2, opacity: 0.8, rotate: 720, transition: { duration: 0.5 } }
+            }}
+          >
+            <circle cx="280" cy="30" r="8" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="1 2" />
+            <line x1="272" y1="30" x2="288" y2="30" stroke="currentColor" strokeWidth="0.5" />
+            <line x1="280" y1="22" x2="280" y2="38" stroke="currentColor" strokeWidth="0.5" />
+          </motion.g>
+
+          {/* Scrolling Coordinate Data */}
+          <motion.text
+            x="15" y="15"
+            fontSize="3.5"
+            className="font-mono fill-accent/50 uppercase tracking-[0.2em]"
+            animate={{ opacity: [0.3, 0.6, 0.3] }}
+            transition={{ repeat: Infinity, duration: 2 }}
+            variants={{
+              tap: { scale: 1.2, fill: "#e11d48", transition: { duration: 0.2 } }
+            }}
+          >
+            LN_AXIS_772 // READY
+          </motion.text>
+          
+          <motion.text
+            x="15" y="130"
+            fontSize="3.5"
+            className="font-mono fill-accent/50 uppercase tracking-[0.2em] opacity-0"
+            variants={{
+              tap: { opacity: 1, x: 20, transition: { duration: 0.2 } }
+            }}
+          >
+            EXECUTING_RESET...
+          </motion.text>
+
+          {/* Corner Framing with thicker 'filletes' */}
+          <motion.g
+            animate={{ scale: [1, 1.02, 1] }}
+            transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
+            variants={{
+              tap: { scale: 1.4, x: -10, y: -10, transition: { duration: 0.3 } }
+            }}
+          >
+            <path d="M 15 30 L 15 15 L 30 15" stroke="currentColor" strokeWidth="1.5" fill="none" className="text-accent/70" />
+            <path d="M 290 125 L 305 125 L 305 110" stroke="currentColor" strokeWidth="1.5" fill="none" className="text-accent/70" />
+          </motion.g>
+
+          {/* Vertical Technical Ruler */}
+          <motion.g
+            animate={{ y: [-10, 10, -10] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          >
+            {[20, 40, 60, 80, 100, 120].map((y, i) => (
+              <line 
+                key={i} 
+                x1="295" y1={y} x2="300" y2={y} 
+                stroke="currentColor" 
+                strokeWidth="0.5" 
+                className="text-accent/30" 
+              />
+            ))}
+          </motion.g>
+
+          {/* High-speed scanning line (Spins fast on tap) */}
+          <motion.rect
+            x="0" y="0" width="0.5" height="140"
+            className="fill-accent/40 shadow-[0_0_8px_rgba(var(--accent),0.5)]"
+            animate={{ x: [10, 310, 10] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "circIn" }}
+            variants={{
+              tap: { width: 5, opacity: 1, x: [10, 310], transition: { duration: 0.2 } }
+            }}
+          />
+        </motion.svg>
+      </div>
+
+      {/* The Actual Logo - Solid and Professional */}
+      <motion.div
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        className="relative z-10"
+      >
+        <img 
+          src="https://akhydra.com.ar/wp-content/uploads/2025/11/logo-akhydra-vect.svg" 
+          alt="AKHYDRA Logo" 
+          className={`h-12 md:h-14 w-auto drop-shadow-md transition-all duration-300 ${imgClassName || ''}`}
+          referrerPolicy="no-referrer"
+        />
+      </motion.div>
+      
+      {/* Interactive Detail Highlight */}
+      <motion.div 
+        className="absolute -bottom-3 left-0 w-0 h-1.5 bg-accent/40"
+        initial={{ width: 0 }}
+        whileHover={{ width: '100%', transition: { duration: 0.5, ease: "circOut" } }}
+      />
+    </div>
+  );
+};
+
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -108,14 +333,7 @@ const Navbar = () => {
     <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled || !isHome ? 'bg-white/95 backdrop-blur-md border-b border-primary/10 py-4 shadow-md' : 'bg-transparent py-8'}`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <div className="flex items-center">
-          <Link to="/">
-            <img 
-              src="https://akhydra.com.ar/wp-content/uploads/2025/11/logo-akhydra-vect.svg" 
-              alt="AKHYDRA Logo" 
-              className="h-12 md:h-14 w-auto"
-              referrerPolicy="no-referrer"
-            />
-          </Link>
+          <AnimatedLogo />
         </div>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
@@ -174,13 +392,7 @@ const Navbar = () => {
             className="fixed inset-0 bg-white z-[60] p-6 flex flex-col overflow-y-auto"
           >
             <div className="flex justify-between items-center mb-8">
-              <Link to="/" onClick={() => setMobileMenuOpen(false)}>
-                <img 
-                  src="https://akhydra.com.ar/wp-content/uploads/2025/11/logo-akhydra-vect.svg" 
-                  alt="AKHYDRA Logo" 
-                  className="h-10 w-auto"
-                />
-              </Link>
+              <AnimatedLogo onClick={() => setMobileMenuOpen(false)} />
               <button onClick={() => setMobileMenuOpen(false)}><X size={32} /></button>
             </div>
             
@@ -561,16 +773,38 @@ const About = () => {
               </p>
             </div>
             
-            {/* Added a call to action or metric for better balance */}
-            <div className="mt-12 pt-12 border-t border-primary/5 grid grid-cols-2 gap-8">
-              <div>
-                <div className="text-4xl font-bold text-primary mb-1">2020</div>
-                <div className="text-xs font-mono text-primary/40 uppercase tracking-widest font-bold">Fundación</div>
-              </div>
-              <div>
-                <div className="text-4xl font-bold text-primary mb-1">100+</div>
-                <div className="text-xs font-mono text-primary/40 uppercase tracking-widest font-bold">Proyectos</div>
-              </div>
+            {/* Prominent Call to Action for Staff */}
+            <div className="mt-10 pt-10 border-t border-primary/5 flex flex-col items-start">
+              <Link to="/staff">
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="group relative bg-primary text-white font-bold rounded-xl py-4 px-7 transition-all shadow-lg shadow-primary/10 hover:shadow-accent/30 hover:bg-accent flex items-center gap-3 overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                  <div className="relative flex items-center gap-3">
+                    <div className="bg-white/10 p-2.5 rounded-lg group-hover:bg-white/20 transition-colors">
+                      <motion.div
+                        animate={{ 
+                          y: [0, -2, 0],
+                        }}
+                        transition={{ 
+                          duration: 1.5, 
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        <Users size={22} className="text-white" />
+                      </motion.div>
+                    </div>
+                    <div className="text-left">
+                      <div className="text-[10px] uppercase tracking-widest text-white/50 mb-0.5 font-mono">Integrantes</div>
+                      <div className="text-lg font-display tracking-tight leading-tight">Staff Completo</div>
+                    </div>
+                    <ArrowRight size={18} className="ml-2 opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                  </div>
+                </motion.button>
+              </Link>
             </div>
           </motion.div>
           
@@ -687,30 +921,382 @@ const About = () => {
   );
 };
 
+const Staff = () => {
+  const categories = [
+    {
+      title: "STAFF / ASESORES",
+      description: "Profesionales especializados en ingeniería, arquitectura y ciencias ambientales.",
+      members: [
+        { name: "Balduzzi Sofía", role: "Arquitecta", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Sofia_balduzzi.png" },
+        { name: "Bazán Agustina", role: "Ing. Civil/Hidráulica", location: "Córdoba, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/agustina_bazan.png" },
+        { name: "Bellomo Marina", role: "Contadora", location: "Olavarría, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Marina_BELLOMO.png" },
+        { name: "Blasetti Renata", role: "Ing. Civil/Hidráulica", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2022/04/blasetti.png" },
+        { name: "Cabrera Nahuel", role: "Arquitecto", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/11/Nahuel_Cabrera.png" },
+        { name: "Camacho Richard", role: "Jefe de Proyectos", location: "Cochabamba, Bolivia", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Richard_CAMACHO.png" },
+        { name: "Carbonetti J. Carlos", role: "Gerente Comercial", location: "Saladillo, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Juan_C_CARBONETTI.png" },
+        { name: "Ciancio Magdalena", role: "Bióloga", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2025/06/magadalena_ciancio.png" },
+        { name: "Decicilia Lucas", role: "Ing. Mecánico", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Lucas_DECICILIA.png" },
+        { name: "Defelipe Guillermo", role: "Ing. Vías de Comunicación", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Guillermo_DEFELIPE.png" },
+        { name: "Dionisio Delfina", role: "Arquitectura", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Delfina_DIONISIO.png" },
+        { name: "Edwin Florencia Paula", role: "Recursos Naturales y Medio Ambiente", location: "Mendoza, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2024/09/f_edwin.png" },
+        { name: "Escobar Loreine", role: "Ing. Ambiental y Sanitaria", location: "Santa Marta, Colombia", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Loreine_ESCOBAR.png" },
+        { name: "Fernández Suyai", role: "Ing. Civil", location: "Neuquén, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Suyai_FERNANDEZ.png" },
+        { name: "Gardella Martina", role: "Arquitecta", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Martina_GARDELLA.png" },
+        { name: "Giustozzi Santiago", role: "Arquitectura / Gestión Ambiental", location: "Exaltación de la Cruz, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2023/10/Santiago_Giustozzi.png" },
+        { name: "Guillen Amparo", role: "Ingeniera Civil", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2022/01/guillen_amparo.png" },
+        { name: "Jurado Nayla", role: "Arquitecta", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Nayla_JURADO.png" },
+        { name: "Lalli Lisandro", role: "Ing. Civil", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2022/06/lisandro_lali.png" },
+        { name: "Larocca Gustavo", role: "Ing. Mecánico", location: "Barcelona, España", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Gustavo_LAROCCA_1.png" },
+        { name: "López Jimena", role: "Lic. en Geología", location: "Florencio Varela, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Jimena_LOPEZ.png" },
+        { name: "Machado Paula", role: "Ing. Construcciones", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/PaulaMACHADO.png" },
+        { name: "Masson R. Julian", role: "Ing. Hidráulico", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2022/09/Julian_Masson_RODRIGUEZ.png" },
+        { name: "Molina Soledad", role: "Arquitecta", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Soledad_MOLINA.png" },
+        { name: "Neme Martín", role: "Ing. Hidráulico", location: "Chivilcoy, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/MartinNEME.png" },
+        { name: "Panigatti Delfina", role: "Ing. Hidráulica", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/11/Delfina_Panigatti.png" },
+        { name: "Pérez Miguel", role: "Ingeniero Civil", location: "Córdoba, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/miguel-perez.png" },
+        { name: "Posse Fernando", role: "Proyecto y Construcción", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Fernando_POSSE.png" },
+        { name: "Pugliese Irina", role: "Lic. en Geología", location: "Nayarit, México", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Irina_PUGLIESE.png" },
+        { name: "Stoeff Belkenoff, Ian", role: "Ing. Electromecánico", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2022/05/ian.png" },
+        { name: "Szychowski Selva", role: "Arquitecta", location: "San José, Costa Rica", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Selva_SZYCHOWSKI.png" },
+        { name: "Terpolilli Diego", role: "Agrimensor", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Diego_TERPOLILLI.png" },
+        { name: "Terré María Florencia", role: "Ingeniero Civil", location: "Córdoba, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2024/10/terre.png" },
+        { name: "Tiseira Lucas", role: "Ingeniero Civil", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2022/06/lucas_tiseira.png" },
+        { name: "Tkaczyk Carolina", role: "Ingeniera Ambiental", location: "Córdoba, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2022/01/tkaczyk_carolina.png" },
+        { name: "Tornari Maximiliano", role: "Ing. Construcciones/Civil", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Maximiliani_TORNARI.png" },
+        { name: "Villani J. Ignacio", role: "Ing. Industrial", location: "La Plata, Argentina", image: "https://akhydra.com.ar/wp-content/uploads/2021/06/Ignacio_VILLANI.png" }
+      ]
+    }
+  ];
+
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+  };
+
+  return (
+    <section id="staff" className="py-24 bg-white relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6 border-b border-primary/5 pb-12">
+          <div className="max-w-2xl">
+            <Badge className="mb-4 bg-accent/10 text-accent border-none font-bold">Talento Interdisciplinario</Badge>
+            <h2 className="text-4xl md:text-5xl mb-6 text-primary">Nuestro <span className="text-accent italic">Equipo de Trabajo</span></h2>
+            <p className="text-primary/70 text-lg leading-relaxed">
+              En AKHYDRA, creemos que la sinergia de diferentes áreas de conocimiento es fundamental para la excelencia técnica. Contamos con un staff altamente comprometido en diversas regiones del mundo.
+            </p>
+          </div>
+        </div>
+
+        {/* Featured: Area Administrativa */}
+        <div className="mb-24">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="grid md:grid-cols-3 gap-12 items-center bg-surface/30 p-8 md:p-12 rounded-[40px] border border-primary/5 shadow-inner"
+          >
+            <div className="md:col-span-1 flex flex-col items-center text-center">
+              <div className="w-48 h-48 rounded-full border-8 border-white shadow-2xl overflow-hidden bg-white mb-6 relative group">
+                <img 
+                  src="https://akhydra.com.ar/wp-content/uploads/2025/06/magadalena_ciancio.png" 
+                  alt="Ciancio Magdalena" 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+              <h4 className="text-2xl font-bold text-primary mb-1">Ciancio Magdalena</h4>
+              <Badge className="bg-accent text-white border-none font-bold px-4 py-1">Encargada</Badge>
+              <div className="flex items-center gap-2 mt-4 text-primary/40 font-mono text-[10px] font-bold uppercase tracking-widest">
+                <MapPin size={12} className="text-accent" />
+                La Plata, Argentina
+              </div>
+            </div>
+            <div className="md:col-span-2 space-y-6">
+              <div className="space-y-4">
+                <h3 className="text-3xl font-bold text-primary flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-accent text-white flex items-center justify-center shadow-lg shadow-accent/20">
+                    <Briefcase size={20} />
+                  </div>
+                  ÁREA ADMINISTRATIVA
+                </h3>
+                <div className="w-20 h-1 bg-accent rounded-full" />
+              </div>
+              <p className="text-primary/70 text-lg leading-relaxed font-medium">
+                Este sector está liderado por Magdalena, bióloga egresada de la UNLP, quien se encarga de coordinar las áreas de administración, comunicación interna y externa, y gestiona la interacción de los recursos humanos dentro de la consultora. 
+              </p>
+              <p className="text-primary/70 text-lg leading-relaxed">
+                Su labor es fundamental para garantizar el funcionamiento integral de <span className="text-primary font-bold">AKHYDRA</span>, promoviendo la articulación eficiente entre los distintos equipos y asegurando una dinámica de trabajo fluida y cohesionada.
+              </p>
+              <div className="pt-6 grid grid-cols-2 gap-4">
+                <div className="p-4 rounded-2xl bg-white/50 border border-primary/5 flex items-center gap-3">
+                  <CheckCircle2 className="text-accent shrink-0" size={20} />
+                  <span className="text-sm font-bold text-primary/70">Coordinación de RRHH</span>
+                </div>
+                <div className="p-4 rounded-2xl bg-white/50 border border-primary/5 flex items-center gap-3">
+                  <CheckCircle2 className="text-accent shrink-0" size={20} />
+                  <span className="text-sm font-bold text-primary/70">Comunicación Institucional</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        <div className="space-y-24">
+          {categories.map((cat, idx) => (
+            <div key={idx} className="space-y-12">
+              <div className="space-y-2 border-l-4 border-accent pl-6">
+                <h3 className="text-3xl font-bold text-primary flex items-center gap-3">
+                  {cat.title}
+                </h3>
+                <p className="text-primary/50 text-base">{cat.description}</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
+                {cat.members.map((m, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 15 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: (i % 8) * 0.05 }}
+                    className="p-5 rounded-3xl bg-surface/50 border border-primary/5 hover:border-accent/30 hover:bg-white hover:shadow-xl transition-all group relative"
+                  >
+                    <div className="flex items-center gap-5 mb-4">
+                      <div className="w-16 h-16 shrink-0 rounded-full bg-white border-2 border-primary/10 flex items-center justify-center overflow-hidden group-hover:border-accent transition-all shadow-md group-hover:scale-105 duration-500">
+                        {m.image ? (
+                          <img 
+                            src={m.image} 
+                            alt={m.name} 
+                            className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700"
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <span className="text-primary/40 text-sm font-mono font-bold group-hover:text-accent transition-colors">
+                            {getInitials(m.name)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-primary text-base group-hover:text-accent transition-colors leading-tight truncate">{m.name}</h4>
+                        <div className="flex items-center gap-1.5 mt-1 text-accent font-bold">
+                          {idx === 0 ? <Briefcase size={12} /> : <HardHat size={12} />}
+                          <span className="text-[11px] uppercase tracking-wider truncate">{m.role}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="pt-3 border-t border-primary/5 flex items-center gap-2 text-primary/40">
+                      <MapPin size={12} className="shrink-0" />
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-tight truncate">{m.location}</span>
+                    </div>
+
+                    {/* Decorative element (Technical coordinates) */}
+                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                      <div className="text-[8px] font-mono text-accent/30 text-right leading-none">
+                        LAT: {Math.floor(Math.random() * 90)}°<br />
+                        LON: {Math.floor(Math.random() * 180)}°
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// --- Sub-components for Services Animations (Enhanced & Robust) ---
+
+const HydraulicAnimation = () => {
+  const containerVariants = {
+    initial: { opacity: 0 },
+    hover: { opacity: 0.4, transition: { duration: 0.5 } }
+  };
+
+  const waveVariants = {
+    initial: { y: "100%" },
+    hover: { y: "70%", transition: { duration: 0.8, ease: "easeOut" } }
+  };
+
+  return (
+    <motion.div 
+      variants={containerVariants}
+      className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl"
+    >
+      <motion.div 
+        variants={waveVariants}
+        className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-accent/25 to-accent/10 backdrop-blur-[1px]"
+      >
+        <div className="absolute top-0 left-0 w-[200%] h-12 -translate-y-full overflow-hidden">
+          <motion.svg viewBox="0 0 100 20" className="w-full h-full text-accent/30 fill-current" preserveAspectRatio="none">
+            <motion.path 
+              d="M 0 10 Q 12.5 0 25 10 T 50 10 T 75 10 T 100 10 V 20 H 0 Z" 
+              animate={{ x: ["0%", "-50%"] }} 
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }} 
+            />
+            <motion.path 
+              d="M 0 12 Q 12.5 2 25 12 T 50 12 T 75 12 T 100 12 V 20 H 0 Z" 
+              animate={{ x: ["-50%", "0%"] }} 
+              transition={{ duration: 4, repeat: Infinity, ease: "linear" }} 
+              className="opacity-40" 
+            />
+          </motion.svg>
+        </div>
+        {[...Array(5)].map((_, i) => (
+          <motion.div 
+            key={i} 
+            className="absolute bottom-4 w-2 h-2 bg-accent/40 rounded-full" 
+            animate={{ y: [0, -160], opacity: [0, 0.8, 0], x: [0, (i-2)*15] }} 
+            transition={{ duration: 2.5 + i*0.5, repeat: Infinity, delay: i*0.3 }} 
+            style={{ left: `${20 + i*15}%` }} 
+          />
+        ))}
+      </motion.div>
+    </motion.div>
+  );
+};
+
+const UrbanAnimation = () => {
+  const containerVariants = {
+    initial: { opacity: 0 },
+    hover: { opacity: 0.4, transition: { duration: 0.5 } }
+  };
+
+  const itemVariants = {
+    initial: { pathLength: 0, opacity: 0 },
+    hover: (i: number) => ({
+      pathLength: 1, 
+      opacity: 1, 
+      transition: { duration: 1, delay: i * 0.2, ease: "easeInOut" }
+    })
+  };
+
+  return (
+    <motion.div 
+      variants={containerVariants}
+      className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl bg-primary/[0.04]"
+    >
+      <motion.svg 
+        viewBox="0 0 240 120" 
+        className="w-full h-full text-accent/50"
+        variants={{
+          hover: { y: [35, 30], transition: { repeat: Infinity, duration: 4, ease: "easeInOut", repeatType: "mirror" } }
+        }}
+        initial={{ y: 40 }}
+      >
+        {/* Pylon Left */}
+        <motion.path d="M 40 100 L 50 40 L 60 100" stroke="currentColor" strokeWidth="3" fill="none" custom={0} variants={itemVariants} />
+        {/* Pylon Right */}
+        <motion.path d="M 180 100 L 190 40 L 200 100" stroke="currentColor" strokeWidth="3" fill="none" custom={1} variants={itemVariants} />
+        {/* Main Deck */}
+        <motion.path d="M 10 85 L 230 85" stroke="currentColor" strokeWidth="2.5" fill="none" custom={2} variants={itemVariants} />
+        {/* Suspension Cables */}
+        <motion.path d="M 50 40 Q 120 -5 190 40" stroke="currentColor" strokeWidth="1.2" fill="none" custom={3} variants={itemVariants} strokeDasharray="4 2" />
+        <motion.path d="M 50 40 L 10 85" stroke="currentColor" strokeWidth="0.8" fill="none" custom={4} variants={itemVariants} />
+        <motion.path d="M 190 40 L 230 85" stroke="currentColor" strokeWidth="0.8" fill="none" custom={4} variants={itemVariants} />
+        
+        {/* Continuous traffic line */}
+        <motion.rect
+          width="30" height="3" className="fill-accent/80"
+          initial={{ x: -40, y: 83.5, opacity: 0 }}
+          variants={{
+            hover: { opacity: [0, 1, 1, 0], x: [-40, 240], transition: { delay: 1.5, duration: 3, repeat: Infinity, ease: "linear" } }
+          }}
+        />
+        <motion.text 
+          x="120" y="25" textAnchor="middle"
+          className="fill-accent font-mono text-[7px] font-black opacity-0" 
+          variants={{ hover: { opacity: 1, transition: { delay: 2 } } }}
+        >
+          INFRA_GRID: ONLINE
+        </motion.text>
+      </motion.svg>
+    </motion.div>
+  );
+};
+
+const TechnicalAnimation = () => {
+  const containerVariants = {
+    initial: { opacity: 0 },
+    hover: { opacity: 0.4, transition: { duration: 0.5 } }
+  };
+
+  const lineVariants = {
+    initial: { pathLength: 0, opacity: 0 },
+    hover: (i: number) => ({
+      pathLength: 1, 
+      opacity: 1, 
+      transition: { duration: 1.2, delay: i * 0.25, ease: "easeInOut" }
+    })
+  };
+
+  return (
+    <motion.div 
+      variants={containerVariants}
+      className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl bg-white/60"
+    >
+      <div className="absolute inset-0 opacity-15" style={{ backgroundImage: 'linear-gradient(currentColor 1.5px, transparent 1.5px), linear-gradient(90deg, currentColor 1.5px, transparent 1.5px)', backgroundSize: '20px 20px' }} />
+      <motion.svg 
+        viewBox="0 0 200 200" 
+        className="w-full h-full text-accent/40"
+        variants={{
+          hover: { rotate: [0, 1.5, 0], scale: [1, 1.03, 1], transition: { repeat: Infinity, duration: 8, ease: "easeInOut" } }
+        }}
+      >
+        {/* Frame */}
+        <motion.path d="M 30 30 H 170 V 170 H 30 Z" stroke="currentColor" strokeWidth="2" fill="none" custom={0} variants={lineVariants} />
+        {/* Internal Walls */}
+        <motion.path d="M 30 70 H 170" stroke="currentColor" strokeWidth="1.5" fill="none" custom={1} variants={lineVariants} />
+        <motion.path d="M 100 70 V 170" stroke="currentColor" strokeWidth="1.5" fill="none" custom={2} variants={lineVariants} />
+        {/* Callout circle */}
+        <motion.circle cx="130" cy="120" r="18" stroke="currentColor" strokeWidth="1.5" fill="none" custom={3} variants={lineVariants} strokeDasharray="4 2" />
+        
+        {/* Continuous scanning beam */}
+        <motion.line
+          x1="-80" y1="0" x2="280" y2="200" 
+          stroke="currentColor" strokeWidth="1.2" className="opacity-0 text-accent/50"
+          variants={{
+             hover: { opacity: [0, 0.5, 0], x: [-80, 80], transition: { repeat: Infinity, duration: 4.5, ease: "linear" } }
+          }}
+        />
+        <motion.g variants={{ hover: { opacity: 1, transition: { delay: 2.2 } } }} className="opacity-0 fill-accent font-mono text-[8px] font-black">
+          <text x="40" y="25">DATA_STREAM: CONNECTED</text>
+          <motion.text x="40" y="185" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 2 }}>PROCESS_SYNC: OK</motion.text>
+        </motion.g>
+      </motion.svg>
+    </motion.div>
+  );
+};
+
 const Services = () => {
   const services = [
     {
       icon: <Waves className="text-accent" />,
       title: "Ingeniería Hidráulica",
       desc: "Diseño de redes de agua, alcantarillado, plantas de tratamiento y gestión de recursos hídricos.",
-      tags: ["Drenaje", "Riego", "Plantas de Tratamiento"]
+      tags: ["Drenaje", "Riego", "Plantas de Tratamiento"],
+      animation: <HydraulicAnimation />
     },
     {
       icon: <Building2 className="text-accent" />,
       title: "Infraestructura Urbana",
       desc: "Desarrollo de proyectos viales, urbanizaciones y estructuras civiles de alta complejidad.",
-      tags: ["Vialidad", "Puentes", "Urbanismo"]
+      tags: ["Vialidad", "Puentes", "Urbanismo"],
+      animation: <UrbanAnimation />
     },
     {
       icon: <HardHat className="text-accent" />,
       title: "Consultoría Técnica",
       desc: "Estudios de factibilidad, auditorías de proyectos y supervisión especializada de obra.",
-      tags: ["Peritajes", "Factibilidad", "Supervisión"]
+      tags: ["Peritajes", "Factibilidad", "Supervisión"],
+      animation: <TechnicalAnimation />
     }
   ];
 
   return (
-    <section id="areas" className="py-24 bg-white">
+    <section id="areas" className="py-24 bg-white relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-4xl md:text-5xl mb-6 text-primary">Soluciones de Ingeniería <span className="text-accent">Integrales</span></h2>
@@ -721,18 +1307,28 @@ const Services = () => {
           {services.map((s, i) => (
             <motion.div
               key={i}
-              whileHover={{ y: -5 }}
-              className="p-8 rounded-2xl border border-primary/10 bg-surface hover:bg-white hover:shadow-2xl transition-all duration-300"
+              initial="initial"
+              whileHover="hover"
+              variants={{
+                initial: { y: 0 },
+                hover: { y: -10 }
+              }}
+              className="group p-8 rounded-2xl border border-primary/10 bg-surface hover:bg-white hover:shadow-2xl transition-all duration-500 relative cursor-pointer"
             >
-              <div className="w-14 h-14 bg-white rounded-xl shadow-md flex items-center justify-center mb-6 border border-primary/5">
-                {s.icon}
-              </div>
-              <h3 className="text-2xl mb-4 text-primary">{s.title}</h3>
-              <p className="text-primary/70 mb-6 leading-relaxed">{s.desc}</p>
-              <div className="flex flex-wrap gap-2">
-                {s.tags.map((t, j) => (
-                  <Badge key={j} variant="secondary" className="bg-white text-primary/60 font-bold border border-primary/5">{t}</Badge>
-                ))}
+              {/* Custom Animation Layer */}
+              {s.animation}
+
+              <div className="relative z-10">
+                <div className="w-14 h-14 bg-white rounded-xl shadow-md flex items-center justify-center mb-6 border border-primary/5 group-hover:scale-110 transition-transform duration-500">
+                  {s.icon}
+                </div>
+                <h3 className="text-2xl mb-4 text-primary group-hover:text-accent transition-colors duration-300">{s.title}</h3>
+                <p className="text-primary/70 mb-6 leading-relaxed group-hover:text-primary transition-colors duration-300">{s.desc}</p>
+                <div className="flex flex-wrap gap-2">
+                  {s.tags.map((t, j) => (
+                    <Badge key={j} variant="secondary" className="bg-white text-primary/60 font-bold border border-primary/5 group-hover:border-accent/20 group-hover:text-accent transition-all duration-300">{t}</Badge>
+                  ))}
+                </div>
               </div>
             </motion.div>
           ))}
@@ -1042,12 +1638,7 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-12 mb-12">
           <div className="col-span-2">
             <div className="flex items-center text-white mb-6">
-              <img 
-                src="https://akhydra.com.ar/wp-content/uploads/2025/11/logo-akhydra-vect.svg" 
-                alt="AKHYDRA Logo" 
-                className="h-8 w-auto brightness-0 invert"
-                referrerPolicy="no-referrer"
-              />
+              <AnimatedLogo imgClassName="brightness-0 invert" />
             </div>
             <p className="max-w-sm mb-8 text-white/80 font-medium">Líderes en ingeniería de fluidos e infraestructura resiliente. Comprometidos con la innovación técnica y el desarrollo sostenible.</p>
             <div className="flex gap-4">
@@ -1759,18 +2350,51 @@ const AdminPanel = () => {
 
               <div className="space-y-3">
                 <label className="text-sm font-bold opacity-60 uppercase tracking-widest flex items-center gap-2">
-                  <ImageIcon size={14} /> Galería de Fotos (URLs separadas por comas)
+                  <ImageIcon size={14} /> Galería de Fotos
                 </label>
                 
+                <div className="flex gap-2">
+                  <Input 
+                    id="newGalleryImage"
+                    placeholder="Pega la URL de una imagen para la galería..."
+                    className="border-primary/10 h-10 rounded-xl focus:ring-accent"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const input = e.currentTarget;
+                        const url = input.value.trim();
+                        if (url) {
+                          setFormData({ ...formData, gallery: [...formData.gallery, url] });
+                          input.value = '';
+                        }
+                      }
+                    }}
+                  />
+                  <Button 
+                    type="button" 
+                    onClick={() => {
+                      const input = document.getElementById('newGalleryImage') as HTMLInputElement;
+                      const url = input?.value.trim();
+                      if (url) {
+                        setFormData({ ...formData, gallery: [...formData.gallery, url] });
+                        input.value = '';
+                      }
+                    }}
+                    className="bg-accent/10 text-accent hover:bg-accent/20 border-accent/20 h-10 px-4"
+                  >
+                    Agregar
+                  </Button>
+                </div>
+                
                 {formData.gallery.length > 0 && (
-                  <div className="grid grid-cols-4 md:grid-cols-6 gap-3 mb-3">
+                  <div className="grid grid-cols-4 md:grid-cols-6 gap-3 mb-3 p-4 bg-primary/5 rounded-2xl border border-primary/5">
                     {formData.gallery.map((img, idx) => (
-                      <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-primary/10 group">
+                      <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-primary/10 group bg-white">
                         <img src={img} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                         <button 
                           type="button"
                           onClick={() => setFormData({...formData, gallery: formData.gallery.filter((_, i) => i !== idx)})}
-                          className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                          className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center shadow-lg"
                         >
                           <X size={10} />
                         </button>
@@ -1778,13 +2402,7 @@ const AdminPanel = () => {
                     ))}
                   </div>
                 )}
-                
-                <Textarea 
-                  placeholder="https://img1.jpg, https://img2.jpg..."
-                  value={formData.gallery.join(', ')} 
-                  onChange={e => setFormData({...formData, gallery: e.target.value.split(',').map(s => s.trim()).filter(s => s !== '')})}
-                  className="border-primary/10 rounded-xl focus:ring-accent h-24" 
-                />
+                <p className="text-[10px] text-primary/40 italic">Puedes agregar imágenes una por una pegando el link y presionando Enter o el botón Agregar.</p>
               </div>
 
               <div className="flex gap-4 pt-6">
@@ -1935,6 +2553,7 @@ export default function App() {
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/staff" element={<StaffPage />} />
             <Route path="/area/:areaId" element={<AreaDetail />} />
             <Route path="/portfolio" element={<PortfolioPage />} />
             <Route path="/admin" element={<AdminPanel />} />
@@ -1956,6 +2575,44 @@ const Home = () => {
       <Projects />
       <Contact />
     </>
+  );
+};
+
+const StaffPage = () => {
+  return (
+    <div className="pt-24 min-h-screen bg-white">
+      <div className="bg-surface py-16 border-b border-primary/5">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center gap-4 text-xs font-mono font-bold text-accent mb-4 uppercase tracking-widest">
+            <Link to="/" className="hover:text-primary transition-colors">Home</Link>
+            <span>/</span>
+            <span className="text-primary/40">Staff</span>
+          </div>
+          <h1 className="text-4xl md:text-6xl font-display font-bold text-primary mb-4 uppercase tracking-tighter">
+            Capital <span className="text-accent italic">Humano</span>
+          </h1>
+          <p className="text-lg text-primary/60 max-w-2xl font-medium">
+            Conocé al equipo interdisciplinario de profesionales que integran AKHYDRA Ingeniería.
+          </p>
+        </div>
+      </div>
+      <Staff />
+      
+      {/* Footer CTA specifically for staff page */}
+      <section className="py-24 bg-primary text-white text-center">
+        <div className="max-w-3xl mx-auto px-6">
+          <h3 className="text-3xl font-bold mb-8 italic">¿Te gustaría formar parte de nuestro equipo?</h3>
+          <p className="text-xl text-white/70 mb-12">
+            Estamos en constante búsqueda de talentos apasionados por la ingeniería y el medio ambiente.
+          </p>
+          <a href="mailto:info@akhydra.com.ar">
+            <Button size="lg" className="bg-white text-primary hover:bg-accent hover:text-white font-bold h-16 px-12 rounded-full shadow-2xl transition-all">
+              Enviar mi CV
+            </Button>
+          </a>
+        </div>
+      </section>
+    </div>
   );
 };
 
