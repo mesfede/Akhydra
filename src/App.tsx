@@ -701,7 +701,7 @@ const Navbar = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ duration: 1, ease: "easeOut" }}
-                    className="relative w-56 h-56 flex items-center justify-center mb-16"
+                    className="relative w-56 h-56 flex items-center justify-center mb-24"
                   >
                     {/* The Branded Orb content */}
                     {/* Rotating Technical Markers (Moved to background) */}
@@ -752,7 +752,7 @@ const Navbar = () => {
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1, duration: 0.8 }}
+                    transition={{ delay: 0.3, duration: 0.8 }}
                     className="relative z-20 group/snapContainer"
                   >
                     {/* Subtle animated background elements */}
@@ -771,7 +771,7 @@ const Navbar = () => {
 
                     <Link 
                       to={`/proyecto/${latestProject.id}`}
-                      className="group/snap flex items-center gap-6 bg-white/95 border border-gray-100 rounded-full p-2.5 pr-9 hover:border-accent/40 shadow-[0_15px_40px_rgba(0,0,0,0.06)] transition-all duration-500 overflow-hidden relative"
+                      className="group/snap flex items-center gap-7 bg-white/95 border border-gray-100 rounded-full p-3 pr-11 hover:border-accent/40 shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 overflow-hidden relative"
                     >
                       {/* Internal subtle glow shift */}
                       <motion.div
@@ -786,7 +786,7 @@ const Navbar = () => {
                         }}
                         className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/5 to-transparent skew-x-12 pointer-events-none"
                       />
-                      <div className="relative h-[60px] w-[60px] rounded-full overflow-hidden border border-gray-100 shrink-0 shadow-sm bg-gray-50 flex items-center justify-center">
+                      <div className="relative h-[70px] w-[70px] rounded-full overflow-hidden border border-gray-100 shrink-0 shadow-sm bg-gray-50 flex items-center justify-center">
                         {latestProject.mainImage ? (
                           <img 
                             src={latestProject.mainImage} 
@@ -799,20 +799,26 @@ const Navbar = () => {
                           />
                         ) : (
                           <div className="text-accent/20">
-                            <Projector size={28} />
+                            <Projector size={32} />
                           </div>
                         )}
                       </div>
                       
                       <div className="flex flex-col relative z-10">
                         <div className="flex items-center gap-2">
-                          <span className="relative flex h-1.5 w-1.5">
+                          <span className="relative flex h-2 w-2">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
                           </span>
-                          <span className="text-[11px] font-mono font-black text-accent uppercase tracking-widest">Último Proyecto</span>
+                          <motion.span 
+                            animate={{ opacity: [0.7, 1, 0.7], x: [0, 2, 0] }}
+                            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                            className="text-[12px] font-mono font-black text-accent uppercase tracking-widest"
+                          >
+                            Último Proyecto
+                          </motion.span>
                         </div>
-                        <h4 className="text-sm md:text-base font-bold text-gray-900 tracking-tight leading-tight line-clamp-1 group-hover/snap:text-accent transition-colors">
+                        <h4 className="text-base md:text-lg font-bold text-gray-900 tracking-tight leading-tight line-clamp-1 group-hover/snap:text-accent transition-colors">
                           {latestProject.title}
                         </h4>
                       </div>
