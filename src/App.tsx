@@ -37,7 +37,8 @@ import {
   Check,
   Instagram,
   Linkedin,
-  Facebook
+  Facebook,
+  Projector
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -57,7 +58,8 @@ import {
   doc, 
   updateDoc, 
   serverTimestamp,
-  getDoc
+  getDoc,
+  onSnapshot
 } from 'firebase/firestore';
 import { Project } from './types/Project';
 import { 
@@ -451,6 +453,21 @@ const Navbar = () => {
   });
 
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [latestProject, setLatestProject] = useState<Project | null>(null);
+
+  useEffect(() => {
+    const q = query(collection(db, 'projects'), orderBy('createdAt', 'desc'), limit(1));
+    const unsubscribe = onSnapshot(q, (snap) => {
+      if (!snap.empty) {
+        setLatestProject({ id: snap.docs[0].id, ...snap.docs[0].data() } as Project);
+      }
+    }, (err) => {
+      console.error("Error listening to latest project:", err);
+    });
+    
+    return () => unsubscribe();
+  }, []);
+
   const slides = [
     {
       title: <>Ingeniería <br /> que <span className="text-accent italic">Fluye</span>.</>,
@@ -470,9 +487,9 @@ const Navbar = () => {
               transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
               style={{ originX: 0, originY: 0 }}
             >
-              {/* Outer floating bits - Larger orbit and more visible */}
-              <rect x="-4" y="-220" width="8" height="8" className="fill-accent/30" transform="rotate(45 0 -216)" />
-              <line x1="0" y1="-240" x2="0" y2="-210" className="stroke-accent/20" strokeWidth="1" />
+              {/* Outer floating bits - Smaller orbit and dots */}
+              <rect x="-2" y="-220" width="4" height="4" className="fill-accent/30" transform="rotate(45 0 -218)" />
+              <line x1="0" y1="-240" x2="0" y2="-210" className="stroke-accent/20" strokeWidth="0.5" />
             </motion.g>
           ))}
         </>
@@ -521,9 +538,9 @@ const Navbar = () => {
               transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
               style={{ originX: 0, originY: 0 }}
             >
-              <rect x="-2" y="-230" width="4" height="4" className="fill-accent/40" />
+              <rect x="-1" y="-230" width="2" height="2" className="fill-accent/40" />
               <motion.rect 
-                x="-1" y="-250" width="2" height="20" 
+                x="-0.5" y="-250" width="1" height="15" 
                 className="fill-accent/15"
                 animate={{ opacity: [0.1, 0.5, 0.1] }}
                 transition={{ duration: 4, repeat: Infinity, delay: i * 0.3 }}
@@ -594,14 +611,16 @@ const Navbar = () => {
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 1.2, ease: "easeInOut" }}
                 >
-                  <div className="flex items-center gap-4 mb-6">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: 48 }}
-                      transition={{ duration: 0.8, delay: 0.5 }}
-                      className="h-[1px] bg-accent" 
-                    />
-                    <span className="text-xs font-mono tracking-[0.3em] uppercase text-accent font-bold">AKHYDRA // EXCELENCIA TÉCNICA</span>
+                  <div className="flex flex-col gap-4 mb-6">
+                    <div className="flex items-center gap-4">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: 48 }}
+                        transition={{ duration: 0.8, delay: 0.5 }}
+                        className="h-[1px] bg-accent" 
+                      />
+                      <span className="text-xs font-mono tracking-[0.3em] uppercase text-accent font-bold">AKHYDRA // EXCELENCIA TÉCNICA</span>
+                    </div>
                   </div>
                   
                   {/* Headline with Sweep Reveal and Floating Line */}
@@ -638,7 +657,7 @@ const Navbar = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.8, duration: 1 }}
-                    className="relative text-lg text-primary/60 mb-10 leading-relaxed max-w-2xl border-l-2 border-accent/20 pl-6"
+                    className="relative text-lg text-primary/60 mb-6 leading-relaxed max-w-2xl border-l-2 border-accent/20 pl-6"
                   >
                     {/* Moving technical points */}
                     <motion.div 
@@ -654,18 +673,18 @@ const Navbar = () => {
                       {slides[currentSlide].description}
                     </p>
                   </motion.div>
-                  
-                  <div className="flex flex-wrap gap-6">
+
+                  <div className="flex flex-wrap items-center gap-6">
                     <Link to="/portfolio">
-                      <Button size="lg" className="bg-primary hover:bg-primary/90 h-16 px-10 text-lg text-white font-bold rounded-full transition-all hover:scale-105">
-                        Explorar Proyectos <ArrowRight className="ml-2" size={20} />
+                      <Button size="lg" className="bg-primary hover:bg-primary/90 h-14 px-8 text-base text-white font-bold rounded-full transition-all hover:scale-105 shadow-xl shadow-primary/10">
+                        Explorar Proyectos <ArrowRight className="ml-2" size={18} />
                       </Button>
                     </Link>
                     <a href="#nosotros" className="group flex items-center gap-3 text-primary font-bold hover:text-accent transition-colors">
-                      <div className="w-12 h-12 rounded-full border-2 border-primary/10 flex items-center justify-center group-hover:border-accent transition-colors group-hover:rotate-12 duration-500">
-                        <Waves size={20} />
+                      <div className="w-10 h-10 rounded-full border-2 border-primary/10 flex items-center justify-center group-hover:border-accent transition-colors group-hover:rotate-12 duration-500">
+                        <Waves size={18} />
                       </div>
-                      <span>Nuestra Visión</span>
+                      <span className="text-sm">Nuestra Visión</span>
                     </a>
                   </div>
                 </motion.div>
@@ -674,17 +693,17 @@ const Navbar = () => {
 
             {/* Branded Illustrative Element Side */}
             <div className="hidden lg:block lg:col-span-5 relative">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentSlide}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.1 }}
-                  transition={{ duration: 1.5, ease: "easeOut" }}
-                  className="w-full aspect-square flex items-center justify-center relative"
-                >
-                  {/* The Branded Orb / Isologo placeholder */}
-                  <div className="relative w-80 h-80 flex items-center justify-center">
+              <div className="w-full flex flex-col items-center justify-center relative min-h-[500px]">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentSlide}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 1, ease: "easeOut" }}
+                    className="relative w-56 h-56 flex items-center justify-center mb-16"
+                  >
+                    {/* The Branded Orb content */}
                     {/* Rotating Technical Markers (Moved to background) */}
                     <svg 
                       viewBox="-250 -250 500 500"
@@ -693,15 +712,15 @@ const Navbar = () => {
                        {slides[currentSlide].markers}
                     </svg>
 
-                    {/* Large Colored background circle (Isologo concept) */}
+                    {/* Large Colored background circle */}
                     <motion.div 
+                      key={`orb-bg-${currentSlide}`}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{ scale: 1, opacity: 0.9 }}
-                      exit={{ scale: 1.1, opacity: 0 }}
                       className={`absolute inset-0 ${slides[currentSlide].color} shadow-[0_0_80px_rgba(43,56,143,0.15)] rounded-full z-10`}
                     />
 
-                    {/* Secondary accent circle with pulsing effect */}
+                    {/* Secondary accent circle */}
                     <motion.div 
                       animate={{ 
                         scale: [1, 1.15, 1],
@@ -718,21 +737,109 @@ const Navbar = () => {
                     
                     {/* Icon Container */}
                     <motion.div 
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
                       transition={{ delay: 0.5, duration: 0.8 }}
-                      className="w-32 h-32 relative z-20 flex items-center justify-center filter drop-shadow-xl"
+                      className="w-24 h-24 relative z-20 flex items-center justify-center filter drop-shadow-xl"
                     >
                       {slides[currentSlide].icon}
                     </motion.div>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
+                  </motion.div>
+                </AnimatePresence>
+
+                {/* Latest Project Card - Fixed below, aligned with buttons, 15% larger */}
+                {latestProject && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1, duration: 0.8 }}
+                    className="relative z-20 group/snapContainer"
+                  >
+                    {/* Subtle animated background elements */}
+                    <div className="absolute inset-0 -z-10 pointer-events-none">
+                      <motion.div 
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                        className="absolute -inset-4 border border-dashed border-accent/20 rounded-[40px] opacity-0 group-hover/snapContainer:opacity-100 transition-opacity duration-700"
+                      />
+                      <motion.div 
+                        animate={{ rotate: -360 }}
+                        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                        className="absolute -inset-2 border border-dotted border-accent/30 rounded-[35px] opacity-0 group-hover/snapContainer:opacity-100 transition-opacity duration-700"
+                      />
+                    </div>
+
+                    <Link 
+                      to={`/proyecto/${latestProject.id}`}
+                      className="group/snap flex items-center gap-6 bg-white/95 border border-gray-100 rounded-full p-2.5 pr-9 hover:border-accent/40 shadow-[0_15px_40px_rgba(0,0,0,0.06)] transition-all duration-500 overflow-hidden relative"
+                    >
+                      {/* Internal subtle glow shift */}
+                      <motion.div
+                        animate={{ 
+                          x: ['-100%', '200%'],
+                        }}
+                        transition={{ 
+                          duration: 3, 
+                          repeat: Infinity, 
+                          ease: "linear",
+                          repeatDelay: 2
+                        }}
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/5 to-transparent skew-x-12 pointer-events-none"
+                      />
+                      <div className="relative h-[60px] w-[60px] rounded-full overflow-hidden border border-gray-100 shrink-0 shadow-sm bg-gray-50 flex items-center justify-center">
+                        {latestProject.mainImage ? (
+                          <img 
+                            src={latestProject.mainImage} 
+                            alt={latestProject.title}
+                            className="h-full w-full object-cover transition-transform duration-700 group-hover/snap:scale-110"
+                            referrerPolicy="no-referrer"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=200';
+                            }}
+                          />
+                        ) : (
+                          <div className="text-accent/20">
+                            <Projector size={28} />
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex flex-col relative z-10">
+                        <div className="flex items-center gap-2">
+                          <span className="relative flex h-1.5 w-1.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent"></span>
+                          </span>
+                          <span className="text-[11px] font-mono font-black text-accent uppercase tracking-widest">Último Proyecto</span>
+                        </div>
+                        <h4 className="text-sm md:text-base font-bold text-gray-900 tracking-tight leading-tight line-clamp-1 group-hover/snap:text-accent transition-colors">
+                          {latestProject.title}
+                        </h4>
+                      </div>
+                    </Link>
+                  </motion.div>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Scroll Indicator */}
+        {/* Slider Navigation Dots */}
+        <div className="absolute right-8 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-3">
+          {slides.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentSlide(idx)}
+              className={`h-1 w-1 rounded-full transition-all duration-500 ${
+                currentSlide === idx 
+                  ? "bg-accent w-3" 
+                  : "bg-primary/20 hover:bg-accent/40"
+              }`}
+              aria-label={`Go to slide ${idx + 1}`}
+            />
+          ))}
+        </div>
+
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
           <span className="text-[10px] font-mono tracking-[0.5em] uppercase text-primary/40 font-bold">Scroll</span>
           <div className="w-8 h-12 rounded-full border-2 border-primary/10 flex justify-center p-2">
@@ -2693,17 +2800,38 @@ const StaffPage = () => {
       <Staff />
       
       {/* Footer CTA specifically for staff page */}
-      <section className="py-24 bg-primary text-white text-center">
-        <div className="max-w-3xl mx-auto px-6">
-          <h3 className="text-3xl font-bold mb-8 italic">¿Te gustaría formar parte de nuestro equipo?</h3>
-          <p className="text-xl text-white/70 mb-12">
-            Estamos en constante búsqueda de talentos apasionados por la ingeniería y el medio ambiente.
+      <section className="py-20 bg-surface text-center relative overflow-hidden">
+        {/* Decorative background element */}
+        <div className="absolute -bottom-24 -right-24 text-accent/5 -rotate-12 pointer-events-none">
+          <Users size={480} strokeWidth={0.5} />
+        </div>
+        <div className="absolute -top-24 -left-24 text-primary/5 rotate-12 pointer-events-none">
+          <HardHat size={400} strokeWidth={0.5} />
+        </div>
+
+        <div className="max-w-4xl mx-auto px-6 relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent font-bold text-sm mb-8 uppercase tracking-widest border border-accent/20">
+            <Briefcase size={16} />
+            Trabaja con nosotros
+          </div>
+          <h3 className="text-4xl md:text-6xl font-display font-bold mb-8 text-primary leading-[1.1]">
+            ¿Te gustaría formar parte de <br />
+            <span className="text-accent italic">nuestro equipo</span>?
+          </h3>
+          <p className="text-xl text-primary/70 mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
+            Estamos en constante búsqueda de talentos apasionados por la ingeniería y el medio ambiente para transformar la infraestructura del futuro.
           </p>
-          <a href="mailto:info@akhydra.com.ar">
-            <Button size="lg" className="bg-white text-primary hover:bg-accent hover:text-white font-bold h-16 px-12 rounded-full shadow-2xl transition-all">
-              Enviar mi CV
-            </Button>
-          </a>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="mailto:info@akhydra.com.ar" className="w-full sm:w-auto">
+              <Button size="lg" className="w-full bg-accent hover:bg-primary text-white font-bold h-16 px-12 rounded-2xl shadow-xl shadow-accent/20 transition-all flex items-center justify-center gap-3 group">
+                Enviar mi CV
+                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </a>
+            <p className="text-sm font-mono font-bold text-primary/30 uppercase tracking-tighter">
+              Recepción de perfiles 24/7
+            </p>
+          </div>
         </div>
       </section>
     </div>
