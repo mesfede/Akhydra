@@ -2988,10 +2988,16 @@ const CompromisoSocial = () => {
     "http://akhydra.com.ar/wp-content/uploads/2021/11/ANALISIS_DE_GENERO.jpg"
   ];
 
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % images.length);
-    }, 3000);
+    const timer = setInterval(nextImage, 4000);
     return () => clearInterval(timer);
   }, []);
 
@@ -3023,25 +3029,50 @@ const CompromisoSocial = () => {
             </div>
           </div>
           
-          <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl bg-white border-4 border-white flex items-center justify-center p-4">
-            {images.map((img, index) => (
-              <img
-                key={index}
-                src={img}
-                alt="Certificado/Evento"
-                className={`absolute inset-0 w-full h-full object-contain p-4 transition-opacity duration-1000 ${
-                  index === currentImageIndex ? 'opacity-100' : 'opacity-0'
-                }`}
-              />
-            ))}
+          <div className="relative group overflow-hidden">
+            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl bg-white border-4 border-white flex items-center justify-center p-4">
+              {images.map((img, index) => (
+                <img
+                  key={index}
+                  src={img}
+                  alt="Certificado/Evento"
+                  className={`absolute inset-0 w-full h-full object-contain p-4 transition-opacity duration-1000 ${
+                    index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+                  }`}
+                />
+              ))}
+              
+              {/* Navigation Buttons */}
+              <div className="absolute inset-0 flex items-center justify-between px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <button 
+                  onClick={prevImage}
+                  className="w-10 h-10 rounded-full bg-white/90 shadow-lg flex items-center justify-center text-primary hover:bg-accent hover:text-white transition-all transform hover:scale-110"
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft size={24} />
+                </button>
+                <button 
+                  onClick={nextImage}
+                  className="w-10 h-10 rounded-full bg-white/90 shadow-lg flex items-center justify-center text-primary hover:bg-accent hover:text-white transition-all transform hover:scale-110"
+                  aria-label="Next image"
+                >
+                  <ChevronRight size={24} />
+                </button>
+              </div>
+
+              {/* Counter/Badge */}
+              <div className="absolute top-4 right-4 bg-primary/10 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold text-primary uppercase tracking-widest border border-primary/10">
+                {currentImageIndex + 1} / {images.length}
+              </div>
+            </div>
             
             {/* Dots */}
-            <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10 hidden">
+            <div className="flex justify-center gap-2 mt-6">
               {images.map((_, index) => (
                 <button
                   key={index}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    index === currentImageIndex ? 'bg-primary w-4' : 'bg-primary/20'
+                  className={`h-1.5 rounded-full transition-all duration-500 ${
+                    index === currentImageIndex ? 'bg-accent w-8' : 'bg-primary/20 w-3'
                   }`}
                   onClick={() => setCurrentImageIndex(index)}
                 />
