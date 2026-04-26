@@ -68,7 +68,8 @@ import {
   GoogleAuthProvider, 
   onAuthStateChanged,
   signOut,
-  User
+  User,
+  signInWithEmailAndPassword
 } from 'firebase/auth';
 
 const RenderMainArea = ({ mainArea, className = "" }: { mainArea: string, className?: string }) => {
@@ -358,7 +359,7 @@ const Navbar = () => {
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
           <Link to="/" className="hover:text-accent transition-colors">Home</Link>
-          <a href={isHome ? "#nosotros" : "/#nosotros"} className="hover:text-accent transition-colors">Nosotros</a>
+          <Link to="/#nosotros" className="hover:text-accent transition-colors">Nosotros</Link>
           
           {/* Areas Dropdown */}
           <div 
@@ -392,10 +393,10 @@ const Navbar = () => {
             </AnimatePresence>
           </div>
 
-          <a href={isHome ? "#proyectos" : "/#proyectos"} className="hover:text-accent transition-colors">Proyectos</a>
-          <a href={isHome ? "#contacto" : "/#contacto"} className="hover:text-accent transition-colors">
+          <Link to="/#proyectos" className="hover:text-accent transition-colors">Proyectos</Link>
+          <Link to="/#contacto" className="hover:text-accent transition-colors">
             <Button variant="default" className="bg-accent hover:bg-accent/90 text-white font-bold">Contacto</Button>
-          </a>
+          </Link>
         </div>
 
         <button className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
@@ -418,7 +419,7 @@ const Navbar = () => {
             
             <div className="flex flex-col gap-6 font-display font-bold">
               <Link to="/" className="text-2xl" onClick={() => setMobileMenuOpen(false)}>Home</Link>
-              <a href={isHome ? "#nosotros" : "/#nosotros"} className="text-2xl" onClick={() => setMobileMenuOpen(false)}>Nosotros</a>
+              <Link to="/#nosotros" className="text-2xl" onClick={() => setMobileMenuOpen(false)}>Nosotros</Link>
               
               <div className="flex flex-col gap-4">
                 <button 
@@ -436,10 +437,10 @@ const Navbar = () => {
                 )}
               </div>
 
-              <a href={isHome ? "#proyectos" : "/#proyectos"} className="text-2xl" onClick={() => setMobileMenuOpen(false)}>Proyectos</a>
-              <a href={isHome ? "#contacto" : "/#contacto"} onClick={() => setMobileMenuOpen(false)} className="mt-4">
+              <Link to="/#proyectos" className="text-2xl" onClick={() => setMobileMenuOpen(false)}>Proyectos</Link>
+              <Link to="/#contacto" onClick={() => setMobileMenuOpen(false)} className="mt-4">
                 <Button size="lg" className="w-full bg-accent text-white font-bold">Contacto</Button>
-              </a>
+              </Link>
             </div>
           </motion.div>
         )}
@@ -2369,21 +2370,16 @@ const AdminPanel = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<Project>({
-    title: 'Loteo / Urbanización',
-    location: 'Lisandro Olmos, La Plata, Buenos Aires',
-    mainArea: 'Hidráulica / Vial / Geología',
-    order: 10001,
-    description: 'Proyecto Ejecutivo Hidrológico – Hidráulico para el barrio ubicado en la ciudad de La Plata. Cumplimiento con la resolución 2222/19. Prefactibilidades. Estudios de suelos para calles internas.',
-    mainImage: 'https://akhydra.com.ar/wp-content/uploads/2025/01/1-1024x768.jpeg',
-    gallery: [
-      'https://akhydra.com.ar/wp-content/uploads/2025/01/2.jpg',
-      'https://akhydra.com.ar/wp-content/uploads/2025/01/3-768x1024.jpeg',
-      'https://akhydra.com.ar/wp-content/uploads/2025/01/4-1024x768.jpeg',
-      'https://akhydra.com.ar/wp-content/uploads/2025/01/5-1024x768.jpeg'
-    ],
+    title: '',
+    location: '',
+    mainArea: '',
+    order: undefined,
+    description: '',
+    mainImage: '',
+    gallery: [],
     details: {
-      hidraulica: 'Proyecto Ejecutivo Hidrológico – Hidráulico para el barrio ubicado en la ciudad de La Plata. Se definieron las cotas de las calles y de las obras de arte a construir conjuntamente con todo el sistema de drenaje pluvial para evacuar los excedentes hídricos.\n\nTRAMITACIONES EN AUTORIDAD DEL AGUA (ADA):\nCumplimiento con la resolución 2222/19.\nPrefactibilidades',
-      vial: 'Estudios de suelos para calles internas.',
+      hidraulica: '',
+      vial: '',
       ambiental: ''
     },
     createdAt: null,
@@ -2422,6 +2418,9 @@ const AdminPanel = () => {
     }
   };
 
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+
   const handleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
@@ -2429,6 +2428,16 @@ const AdminPanel = () => {
     } catch (error) {
       console.error("Login failed:", error);
       alert("Error al iniciar sesión: " + (error instanceof Error ? error.message : "Error desconocido"));
+    }
+  };
+
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+    } catch (error) {
+      console.error("Email login failed:", error);
+      alert("Error al iniciar sesión con email: " + (error instanceof Error ? error.message : "Error desconocido"));
     }
   };
 
@@ -2548,11 +2557,42 @@ const AdminPanel = () => {
         <h2 className="text-3xl font-bold text-primary mb-2">Panel de Administración</h2>
         <p className="text-primary/60 mb-8 px-6 text-center">Debes iniciar sesión con tu cuenta de Google autorizada para gestionar los proyectos.</p>
         <div className="flex flex-col gap-4 w-full max-w-xs">
-          <Button onClick={handleLogin} className="bg-primary hover:bg-accent text-white font-bold h-14 px-10 rounded-xl flex items-center gap-3">
-            <Globe size={20} />
-            Iniciar con Google
+          <form onSubmit={handleEmailLogin} className="flex flex-col gap-3 mb-4">
+            <Input 
+              type="email" 
+              placeholder="Email" 
+              value={loginEmail} 
+              onChange={(e) => setLoginEmail(e.target.value)}
+              className="h-12"
+              required
+            />
+            <Input 
+              type="password" 
+              placeholder="Contraseña" 
+              value={loginPassword} 
+              onChange={(e) => setLoginPassword(e.target.value)}
+              className="h-12"
+              required
+            />
+            <Button type="submit" className="bg-primary hover:bg-accent text-white font-bold h-12 rounded-xl">
+              Iniciar Sesión
+            </Button>
+          </form>
+
+          <div className="relative mb-4">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-primary/10"></span>
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-2 text-primary/40 text-[10px]">O continuar con</span>
+            </div>
+          </div>
+
+          <Button onClick={handleLogin} className="bg-white border border-primary/10 hover:bg-primary/5 text-primary h-12 rounded-xl flex items-center gap-3">
+            <Globe size={18} />
+            Google
           </Button>
-          <Link to="/" className="text-center text-primary/40 text-sm hover:text-accent flex items-center justify-center gap-2">
+          <Link to="/" className="text-center text-primary/40 text-sm hover:text-accent flex items-center justify-center gap-2 mt-4">
             <ArrowRight size={14} className="rotate-180" /> Volver a la web
           </Link>
         </div>
@@ -2560,7 +2600,8 @@ const AdminPanel = () => {
     );
   }
 
-  const isAuthorized = user.email === "mesfede@gmail.com";
+  const authorizedEmails = ["mesfede@gmail.com", "contacto@unke.com.ar"];
+  const isAuthorized = user.email && authorizedEmails.includes(user.email);
   if (!isAuthorized) {
     return (
       <div className="pt-40 pb-24 flex flex-col items-center justify-center min-h-[60vh]">
@@ -2944,8 +2985,9 @@ const AdminPanelPlaceholder = () => {
 };
 
 export default function App() {
+  const basename = import.meta.env.BASE_URL.replace(/\/$/, '');
   return (
-    <Router>
+    <Router basename={basename}>
       <ScrollToTop />
       <div className="min-h-screen flex flex-col">
         <Navbar />
