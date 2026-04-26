@@ -38,6 +38,7 @@ import {
   Instagram,
   Linkedin,
   Facebook,
+  Youtube,
   Projector
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -456,13 +457,22 @@ const Navbar = () => {
   const [latestProject, setLatestProject] = useState<Project | null>(null);
 
   useEffect(() => {
-    const q = query(collection(db, 'projects'), orderBy('createdAt', 'desc'), limit(1));
+    const q = query(collection(db, 'projects'));
     const unsubscribe = onSnapshot(q, (snap) => {
       if (!snap.empty) {
-        setLatestProject({ id: snap.docs[0].id, ...snap.docs[0].data() } as Project);
+        const projectsData = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }) as Project);
+        projectsData.sort((a, b) => {
+          const orderA = a.order ?? 999;
+          const orderB = b.order ?? 999;
+          if (orderA !== orderB) return orderA - orderB;
+          return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+        });
+        setLatestProject(projectsData[0]);
+      } else {
+        setLatestProject(null);
       }
     }, (err) => {
-      console.error("Error listening to latest project:", err);
+      console.error("Error listening to featured project:", err);
     });
     
     return () => unsubscribe();
@@ -687,8 +697,95 @@ const Navbar = () => {
                       <span className="text-sm">Nuestra Visión</span>
                     </a>
                   </div>
+
                 </motion.div>
               </AnimatePresence>
+
+              {/* Latest Project Card - Mobile & Tablet Only */}
+              {latestProject && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="block lg:hidden mt-8 max-w-[320px] relative z-20 group/snapContainer"
+                >
+                  <div className="absolute inset-0 -z-10 pointer-events-none">
+                    <motion.div 
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                      className="absolute -inset-2 border border-dashed border-accent/20 rounded-[40px] opacity-0 group-hover/snapContainer:opacity-100 transition-opacity duration-700"
+                    />
+                  </div>
+
+                  <Link 
+                    to={`/proyecto/${latestProject.id}`}
+                    className="group/snap flex items-center gap-4 bg-white/95 border border-gray-100 rounded-full p-2 pr-6 hover:border-accent/40 shadow-[0_15px_40px_rgba(0,0,0,0.06)] transition-all duration-500 overflow-hidden relative"
+                  >
+                    <motion.div
+                      animate={{ x: ['-100%', '200%'] }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "linear", repeatDelay: 2 }}
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/5 to-transparent skew-x-12 pointer-events-none"
+                    />
+                    <div className="relative h-[55px] w-[55px] rounded-full overflow-hidden border border-gray-100 shrink-0 shadow-sm bg-gray-50 flex items-center justify-center group/snapImg">
+                      {latestProject.mainImage ? (
+                        <>
+                          <img 
+                            src={latestProject.mainImage} 
+                            alt={latestProject.title}
+                            className="h-full w-full object-cover transition-transform duration-700 group-hover/snap:scale-110"
+                            referrerPolicy="no-referrer"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=200';
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-primary/30 opacity-0 group-hover/snap:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none">
+                            <img 
+                              src="https://akhydra.com.ar/wp-content/uploads/2025/11/logo-akhydra-vect.svg" 
+                              alt="Akhydra Logo" 
+                              className="w-[70%] h-auto opacity-20"
+                            />
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-accent/20">
+                          <Projector size={24} />
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex flex-col relative z-10 w-[200px] overflow-hidden">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="relative flex h-1.5 w-1.5 shrink-0">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent"></span>
+                        </span>
+                        <motion.span 
+                          animate={{ opacity: [0.7, 1, 0.7] }}
+                          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                          className="text-[10px] font-mono font-black text-accent uppercase tracking-widest whitespace-nowrap"
+                        >
+                          Proyecto Destacado
+                        </motion.span>
+                      </div>
+                      
+                      <div className="overflow-hidden relative w-full mask-gradient-right">
+                        <motion.div
+                          animate={{ x: ["0%", "-50%"] }}
+                          transition={{ duration: 12, ease: "linear", repeat: Infinity }}
+                          className="flex w-max"
+                        >
+                          <span className="text-sm font-bold text-gray-900 tracking-tight leading-tight group-hover/snap:text-accent transition-colors pr-8">
+                            {latestProject.title}
+                          </span>
+                          <span className="text-sm font-bold text-gray-900 tracking-tight leading-tight group-hover/snap:text-accent transition-colors pr-8">
+                            {latestProject.title}
+                          </span>
+                        </motion.div>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              )}
             </div>
 
             {/* Branded Illustrative Element Side */}
@@ -750,9 +847,9 @@ const Navbar = () => {
                 {/* Latest Project Card - Fixed below, aligned with buttons, 15% larger */}
                 {latestProject && (
                   <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3, duration: 0.8 }}
+                    transition={{ duration: 0.4 }}
                     className="relative z-20 group/snapContainer"
                   >
                     {/* Subtle animated background elements */}
@@ -786,17 +883,26 @@ const Navbar = () => {
                         }}
                         className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/5 to-transparent skew-x-12 pointer-events-none"
                       />
-                      <div className="relative h-[70px] w-[70px] rounded-full overflow-hidden border border-gray-100 shrink-0 shadow-sm bg-gray-50 flex items-center justify-center">
+                      <div className="relative h-[70px] w-[70px] rounded-full overflow-hidden border border-gray-100 shrink-0 shadow-sm bg-gray-50 flex items-center justify-center group/snapImg">
                         {latestProject.mainImage ? (
-                          <img 
-                            src={latestProject.mainImage} 
-                            alt={latestProject.title}
-                            className="h-full w-full object-cover transition-transform duration-700 group-hover/snap:scale-110"
-                            referrerPolicy="no-referrer"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=200';
-                            }}
-                          />
+                          <>
+                            <img 
+                              src={latestProject.mainImage} 
+                              alt={latestProject.title}
+                              className="h-full w-full object-cover transition-transform duration-700 group-hover/snap:scale-110"
+                              referrerPolicy="no-referrer"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=200';
+                              }}
+                            />
+                            <div className="absolute inset-0 bg-primary/30 opacity-0 group-hover/snap:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none">
+                              <img 
+                                src="https://akhydra.com.ar/wp-content/uploads/2025/11/logo-akhydra-vect.svg" 
+                                alt="Akhydra Logo" 
+                                className="w-[70%] h-auto opacity-20"
+                              />
+                            </div>
+                          </>
                         ) : (
                           <div className="text-accent/20">
                             <Projector size={32} />
@@ -804,23 +910,35 @@ const Navbar = () => {
                         )}
                       </div>
                       
-                      <div className="flex flex-col relative z-10">
-                        <div className="flex items-center gap-2">
-                          <span className="relative flex h-2 w-2">
+                      <div className="flex flex-col relative z-10 w-[200px] overflow-hidden">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="relative flex h-2 w-2 shrink-0">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
                           </span>
                           <motion.span 
                             animate={{ opacity: [0.7, 1, 0.7], x: [0, 2, 0] }}
                             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                            className="text-[12px] font-mono font-black text-accent uppercase tracking-widest"
+                            className="text-[12px] font-mono font-black text-accent uppercase tracking-widest whitespace-nowrap"
                           >
-                            Último Proyecto
+                            Proyecto Destacado
                           </motion.span>
                         </div>
-                        <h4 className="text-base md:text-lg font-bold text-gray-900 tracking-tight leading-tight line-clamp-1 group-hover/snap:text-accent transition-colors">
-                          {latestProject.title}
-                        </h4>
+                        
+                        <div className="overflow-hidden relative w-full mask-gradient-right">
+                          <motion.div
+                            animate={{ x: ["0%", "-50%"] }}
+                            transition={{ duration: 15, ease: "linear", repeat: Infinity }}
+                            className="flex w-max"
+                          >
+                            <span className="text-base md:text-lg font-bold text-gray-900 tracking-tight leading-tight group-hover/snap:text-accent transition-colors pr-8">
+                              {latestProject.title}
+                            </span>
+                            <span className="text-base md:text-lg font-bold text-gray-900 tracking-tight leading-tight group-hover/snap:text-accent transition-colors pr-8">
+                              {latestProject.title}
+                            </span>
+                          </motion.div>
+                        </div>
                       </div>
                     </Link>
                   </motion.div>
@@ -880,7 +998,7 @@ const About = () => {
   ];
 
   return (
-    <section id="nosotros" className="py-24 bg-surface/30 relative overflow-hidden">
+    <section id="nosotros" className="py-24 bg-surface relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           {/* Left Column: Intro Text */}
@@ -1497,6 +1615,10 @@ const Projects = () => {
         
         // Sort in memory to include docs without createdAt
         projectsData.sort((a, b) => {
+          const orderA = a.order ?? 999;
+          const orderB = b.order ?? 999;
+          if (orderA !== orderB) return orderA - orderB;
+
           const timeA = a.createdAt?.seconds || 0;
           const timeB = b.createdAt?.seconds || 0;
           return timeB - timeA;
@@ -1522,7 +1644,9 @@ const Projects = () => {
           </div>
           <div className="flex gap-4">
             <Link to="/portfolio">
-              <Button variant="outline" className="border-primary/20 text-primary hover:bg-primary/5 font-bold">Ver todos los proyectos</Button>
+              <Button size="lg" className="bg-primary text-white hover:bg-primary/90 font-bold text-[17px] px-7 py-5 group hover:scale-105 hover:shadow-xl transition-all duration-300">
+                Ver todos los proyectos <ArrowRight className="ml-2 w-6 h-6 animate-bounce-x" />
+              </Button>
             </Link>
           </div>
         </div>
@@ -1543,7 +1667,14 @@ const Projects = () => {
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute top-4 left-4">
+                    <div className="absolute inset-0 bg-primary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none">
+                      <img 
+                        src="https://akhydra.com.ar/wp-content/uploads/2025/11/logo-akhydra-vect.svg" 
+                        alt="Akhydra Logo" 
+                        className="w-[60%] max-w-[200px] h-auto opacity-20"
+                      />
+                    </div>
+                    <div className="absolute top-4 left-4 z-10">
                       <Badge className="bg-white/95 text-accent backdrop-blur-sm border-none font-bold shadow-md">
                         <RenderMainArea mainArea={p.mainArea} />
                       </Badge>
@@ -1776,14 +1907,17 @@ const Footer = () => {
             </div>
             <p className="max-w-sm mb-8 text-white/80 font-medium">Líderes en ingeniería de fluidos e infraestructura resiliente. Comprometidos con la innovación técnica y el desarrollo sostenible.</p>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent hover:text-white transition-all cursor-pointer">
+              <a href="https://www.instagram.com/akhydra_ingenieria/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent hover:text-white transition-all cursor-pointer">
                 <Instagram size={18} />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent hover:text-white transition-all cursor-pointer">
+              <a href="https://linkedin.com/company/akhydra/mycompany/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent hover:text-white transition-all cursor-pointer">
                 <Linkedin size={18} />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent hover:text-white transition-all cursor-pointer">
+              <a href="https://www.facebook.com/profile.php?id=100075968361365#" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent hover:text-white transition-all cursor-pointer">
                 <Facebook size={18} />
+              </a>
+              <a href="https://www.youtube.com/channel/UCfJXacuoOh_7x-qV4GTeolA" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent hover:text-white transition-all cursor-pointer">
+                <Youtube size={18} />
               </a>
             </div>
           </div>
@@ -1858,6 +1992,10 @@ const PortfolioPage = () => {
         
         // Sort in memory to include docs without createdAt
         projectsData.sort((a, b) => {
+          const orderA = a.order ?? 999;
+          const orderB = b.order ?? 999;
+          if (orderA !== orderB) return orderA - orderB;
+
           const timeA = a.createdAt?.seconds || 0;
           const timeB = b.createdAt?.seconds || 0;
           return timeB - timeA;
@@ -1908,8 +2046,15 @@ const PortfolioPage = () => {
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         referrerPolicy="no-referrer"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      <div className="absolute top-6 left-6">
+                      <div className="absolute inset-0 bg-primary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none">
+                        <img 
+                          src="https://akhydra.com.ar/wp-content/uploads/2025/11/logo-akhydra-vect.svg" 
+                          alt="Akhydra Logo" 
+                          className="w-[60%] max-w-[200px] h-auto opacity-20"
+                        />
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-primary/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="absolute top-6 left-6 z-10">
                         <Badge className="bg-white text-accent border-none font-bold shadow-xl">
                           <RenderMainArea mainArea={p.mainArea} />
                         </Badge>
@@ -2168,10 +2313,12 @@ const ProjectDetailPage = () => {
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
-                        <Waves size={24} className="animate-pulse" />
-                      </div>
+                    <div className="absolute inset-0 bg-primary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none">
+                      <img 
+                        src="https://akhydra.com.ar/wp-content/uploads/2025/11/logo-akhydra-vect.svg" 
+                        alt="Akhydra Logo" 
+                        className="w-[60%] max-w-[200px] h-auto opacity-20"
+                      />
                     </div>
                   </motion.div>
                 ))}
@@ -2222,15 +2369,21 @@ const AdminPanel = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<Project>({
-    title: '',
-    location: '',
-    mainArea: '',
-    description: '',
-    mainImage: '',
-    gallery: [],
+    title: 'Loteo / Urbanización',
+    location: 'Lisandro Olmos, La Plata, Buenos Aires',
+    mainArea: 'Hidráulica / Vial / Geología',
+    order: 10001,
+    description: 'Proyecto Ejecutivo Hidrológico – Hidráulico para el barrio ubicado en la ciudad de La Plata. Cumplimiento con la resolución 2222/19. Prefactibilidades. Estudios de suelos para calles internas.',
+    mainImage: 'https://akhydra.com.ar/wp-content/uploads/2025/01/1-1024x768.jpeg',
+    gallery: [
+      'https://akhydra.com.ar/wp-content/uploads/2025/01/2.jpg',
+      'https://akhydra.com.ar/wp-content/uploads/2025/01/3-768x1024.jpeg',
+      'https://akhydra.com.ar/wp-content/uploads/2025/01/4-1024x768.jpeg',
+      'https://akhydra.com.ar/wp-content/uploads/2025/01/5-1024x768.jpeg'
+    ],
     details: {
-      hidraulica: '',
-      vial: '',
+      hidraulica: 'Proyecto Ejecutivo Hidrológico – Hidráulico para el barrio ubicado en la ciudad de La Plata. Se definieron las cotas de las calles y de las obras de arte a construir conjuntamente con todo el sistema de drenaje pluvial para evacuar los excedentes hídricos.\n\nTRAMITACIONES EN AUTORIDAD DEL AGUA (ADA):\nCumplimiento con la resolución 2222/19.\nPrefactibilidades',
+      vial: 'Estudios de suelos para calles internas.',
       ambiental: ''
     },
     createdAt: null,
@@ -2252,8 +2405,12 @@ const AdminPanel = () => {
       const querySnapshot = await getDocs(q);
       const projectsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as Project);
       
-      // Ordenar en memoria por fecha (descendente)
+      // Ordenar en memoria por orden y luego fecha (descendente)
       projectsData.sort((a, b) => {
+        const orderA = a.order ?? 999;
+        const orderB = b.order ?? 999;
+        if (orderA !== orderB) return orderA - orderB;
+
         const timeA = a.createdAt?.seconds || 0;
         const timeB = b.createdAt?.seconds || 0;
         return timeB - timeA;
@@ -2288,7 +2445,7 @@ const AdminPanel = () => {
         await addDoc(collection(db, 'projects'), { ...formData, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
       }
       setFormData({
-        title: '', location: '', mainArea: '', description: '', mainImage: '', gallery: [],
+        title: '', location: '', mainArea: '', order: undefined, description: '', mainImage: '', gallery: [],
         details: { hidraulica: '', vial: '', ambiental: '' }, createdAt: null, updatedAt: null
       });
       await fetchProjects();
@@ -2317,6 +2474,26 @@ const AdminPanel = () => {
       alert("Error técnico al eliminar: " + (error instanceof Error ? error.message : "Error de red o permisos"));
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleOrderChange = async (projectId: string, val: string) => {
+    const newOrder = val === '' ? undefined : Number(val);
+    try {
+      await updateDoc(doc(db, 'projects', projectId), { order: newOrder, updatedAt: serverTimestamp() });
+      setProjects(prev => {
+        const next = prev.map(p => p.id === projectId ? { ...p, order: newOrder } : p);
+        next.sort((a, b) => {
+          const orderA = a.order ?? 999;
+          const orderB = b.order ?? 999;
+          if (orderA !== orderB) return orderA - orderB;
+          return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+        });
+        return next;
+      });
+    } catch (e) {
+      console.error("Error updating order:", e);
+      alert("Error al actualizar el orden del proyecto.");
     }
   };
 
@@ -2489,17 +2666,17 @@ const AdminPanel = () => {
                   />
                   <p className="text-[10px] text-primary/40 italic">* Selecciona las áreas para que el proyecto aparezca automáticamente en sus páginas correspondientes.</p>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold opacity-60 uppercase tracking-widest">URL Imagen Portada</label>
-                  <Input 
-                    placeholder="https://..."
-                    value={formData.mainImage} 
-                    onChange={e => setFormData({...formData, mainImage: e.target.value})} 
-                    required 
-                    className="border-primary/10 h-12 rounded-xl focus:ring-accent" 
-                  />
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold opacity-60 uppercase tracking-widest">URL Imagen Portada</label>
+                    <Input 
+                      placeholder="https://..."
+                      value={formData.mainImage} 
+                      onChange={e => setFormData({...formData, mainImage: e.target.value})} 
+                      required 
+                      className="border-primary/10 h-12 rounded-xl focus:ring-accent" 
+                    />
+                  </div>
                 </div>
-              </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-bold opacity-60 uppercase tracking-widest">Descripción del Proyecto (Cuerpo de texto)</label>
@@ -2631,7 +2808,7 @@ const AdminPanel = () => {
                   <Button type="button" onClick={() => {
                     setEditingId(null);
                     setFormData({
-                      title: '', location: '', mainArea: 'Hidráulica', description: '', mainImage: '', gallery: [],
+                      title: '', location: '', mainArea: 'Hidráulica', order: undefined, description: '', mainImage: '', gallery: [],
                       details: { hidraulica: '', vial: '', ambiental: '' }, createdAt: null, updatedAt: null
                     });
                   }} variant="outline" className="h-16 px-8 rounded-2xl">
@@ -2668,8 +2845,23 @@ const AdminPanel = () => {
                     <img src={p.mainImage} alt={p.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   </div>
                   <div className="flex-grow min-w-0">
-                    <h4 className="font-bold text-primary truncate leading-tight">{p.title}</h4>
-                    <div className="text-[10px] text-primary/40 font-bold uppercase tracking-wider mt-1">{p.location}</div>
+                    <h4 className="font-bold text-primary truncate leading-tight flex items-center gap-2">
+                      {p.title}
+                    </h4>
+                    <div className="flex items-center gap-3 mt-1">
+                      <div className="text-[10px] text-primary/40 font-bold uppercase tracking-wider truncate max-w-[120px] sm:max-w-none">{p.location}</div>
+                      <div className="flex items-center gap-2 border-l border-primary/10 pl-3">
+                        <span className="text-[10px] text-primary/60 font-bold uppercase tracking-widest text-nowrap">Orden</span>
+                        <Input 
+                          type="number" 
+                          defaultValue={p.order ?? ''} 
+                          onBlur={(e) => handleOrderChange(p.id!, e.target.value)} 
+                          onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur() }}
+                          className="h-6 w-16 px-1 text-xs text-center font-bold border-primary/20 rounded-md shadow-none hover:border-accent focus:border-accent focus:ring-1 focus:ring-accent" 
+                          placeholder="-"
+                        />
+                      </div>
+                    </div>
                   </div>
                   <div className="flex flex-col gap-1 shrink-0 opacity-100 z-10">
                     {confirmingDeleteId === p.id ? (
@@ -2773,6 +2965,95 @@ export default function App() {
   );
 }
 
+const CompromisoSocial = () => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const images = [
+    "http://akhydra.com.ar/wp-content/uploads/2022/12/certificado03_1dic2022.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2022/12/certificado02_nov2022.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2022/12/certificado01_oct2022.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2022/08/Certificado_DiegoAlvarez.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2022/06/certificado_AAC.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2022/05/Mesa-de-trabajo-agua.png",
+    "http://akhydra.com.ar/wp-content/uploads/2022/04/Mesa-de-trabajo-2.png",
+    "http://akhydra.com.ar/wp-content/uploads/2022/04/CERTIFICADO-CURSO-CPIC.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2022/04/jornada-de-concientizacion.png",
+    "http://akhydra.com.ar/wp-content/uploads/2021/11/ELP.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2021/11/CURSO_1.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2021/11/Coordinacion_Salud.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2021/11/CERTIFICADO_OPDS.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2021/11/ODS_1.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2021/11/Mesa_Ampliada.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2021/11/IRENA2.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2021/11/GESTION_DE_RIESGOS.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2021/11/ANALISIS_DE_GENERO.jpg"
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <section className="py-24 bg-surface/50 border-t border-primary/5">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div>
+            <div className="flex items-center gap-4 text-sm font-mono font-bold text-accent mb-6 uppercase tracking-widest">
+              <span className="w-8 h-[2px] bg-accent"></span>
+              Nuestros Valores
+            </div>
+            
+            <h2 className="text-4xl md:text-6xl mb-4 text-primary font-display font-bold uppercase tracking-tighter">
+              Compromiso <span className="text-accent">Social</span>
+            </h2>
+            
+            <h3 className="text-xl md:text-2xl text-primary/80 font-medium mb-8 uppercase tracking-wide">
+              Asistencia a eventos de interés técnico-científico y participaciones en proyectos de extensión educativa
+            </h3>
+            
+            <div className="space-y-6 text-primary/70 text-lg font-medium">
+              <p>
+                Con diferentes trayectorias profesionales y variadas experiencias personales, el equipo de AKHYDRA INGENIERÍA constituye un acervo multidisciplinar de saberes que se ponen a disposición de nuestros clientes, con el fin de concretar de manera eficaz y eficiente sus proyectos de vida.
+              </p>
+              <p>
+                Charlas en colegios primarios de la Provincia de Bs. As. con motivo de celebrar cada 22 de marzo el DÍA MUNDIAL DEL AGUA utilizando el material que aporta Naciones Unidas para tal evento. Cada año nuestros profesionales tienen el compromiso con este tema y en particular con los Objetivos de Desarrollo Sostenible (ODS).
+              </p>
+            </div>
+          </div>
+          
+          <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl bg-white border-4 border-white flex items-center justify-center p-4">
+            {images.map((img, index) => (
+              <img
+                key={index}
+                src={img}
+                alt="Certificado/Evento"
+                className={`absolute inset-0 w-full h-full object-contain p-4 transition-opacity duration-1000 ${
+                  index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
+            ))}
+            
+            {/* Dots */}
+            <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10 hidden">
+              {images.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    index === currentImageIndex ? 'bg-primary w-4' : 'bg-primary/20'
+                  }`}
+                  onClick={() => setCurrentImageIndex(index)}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const Home = () => {
   return (
     <>
@@ -2780,6 +3061,7 @@ const Home = () => {
       <About />
       <Services />
       <Projects />
+      <CompromisoSocial />
       <Contact />
     </>
   );
@@ -2868,8 +3150,13 @@ const AreaDetail = () => {
           areaNameLower.includes(p.mainArea.toLowerCase())
         );
 
-        // Sort by date
-        related.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+        // Sort by order and date
+        related.sort((a, b) => {
+          const orderA = a.order ?? 999;
+          const orderB = b.order ?? 999;
+          if (orderA !== orderB) return orderA - orderB;
+          return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+        });
         setProjects(related.slice(0, 4)); // Show top 4
       } catch (error) {
         console.error("Error fetching related projects:", error);
@@ -2949,34 +3236,52 @@ const AreaDetail = () => {
         </motion.div>
 
         <div className="space-y-8">
-          <div className="aspect-video rounded-3xl overflow-hidden shadow-2xl relative group">
+          <div className="aspect-video rounded-3xl overflow-hidden shadow-2xl relative group cursor-pointer">
             <img 
-              src={`https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=800`} 
+              src={area.gallery?.[0] || `https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=800`} 
               alt="Detalle Técnico" 
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               referrerPolicy="no-referrer"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent" />
-            <div className="absolute bottom-6 left-6 text-white font-mono text-xs uppercase tracking-widest font-bold">
-              Detalle_Técnico_01
+            <div className="absolute inset-0 bg-primary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none">
+              <img 
+                src="https://akhydra.com.ar/wp-content/uploads/2025/11/logo-akhydra-vect.svg" 
+                alt="Akhydra Logo" 
+                className="w-[50%] max-w-[300px] h-auto opacity-20"
+              />
             </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-primary/30 to-transparent" />
           </div>
           <div className="grid grid-cols-2 gap-8">
-            <div className="aspect-square rounded-3xl overflow-hidden shadow-xl">
+            <div className="aspect-square rounded-3xl overflow-hidden shadow-xl relative group cursor-pointer">
               <img 
-                src={`https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=600`} 
+                src={area.gallery?.[1] || `https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=600`} 
                 alt="Obra" 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 referrerPolicy="no-referrer"
               />
+              <div className="absolute inset-0 bg-primary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none">
+                <img 
+                  src="https://akhydra.com.ar/wp-content/uploads/2025/11/logo-akhydra-vect.svg" 
+                  alt="Akhydra Logo" 
+                  className="w-[60%] max-w-[200px] h-auto opacity-20"
+                />
+              </div>
             </div>
-            <div className="aspect-square rounded-3xl overflow-hidden shadow-xl">
+            <div className="aspect-square rounded-3xl overflow-hidden shadow-xl relative group cursor-pointer">
               <img 
-                src={`https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=600`} 
+                src={area.gallery?.[2] || `https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=600`} 
                 alt="Laboratorio" 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 referrerPolicy="no-referrer"
               />
+              <div className="absolute inset-0 bg-primary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none">
+                <img 
+                  src="https://akhydra.com.ar/wp-content/uploads/2025/11/logo-akhydra-vect.svg" 
+                  alt="Akhydra Logo" 
+                  className="w-[60%] max-w-[200px] h-auto opacity-20"
+                />
+              </div>
             </div>
           </div>
         </div>

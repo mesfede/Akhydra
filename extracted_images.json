@@ -1,0 +1,98 @@
+{
+  "arquitectura": [
+    "https://akhydra.com.ar/wp-content/uploads/2021/05/arquitectura_1.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/05/arquitectura_3.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/05/arquitectura_2.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/05/arquitectura_5.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/05/arquitectura_6.jpg"
+  ],
+  "asesoramiento": [
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/legal_2.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/papeles_legales.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/legal_3.jpg"
+  ],
+  "civil": [
+    "https://akhydra.com.ar/wp-content/uploads/2023/07/civil_06-1024x768.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2023/07/civil_05-1024x768.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2023/07/civil_04-1024x768.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/05/civil_01.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/05/civil_02.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/05/civil_03.jpg"
+  ],
+  "eng-renovables": [
+    "http://akhydra.com.ar/wp-content/uploads/2021/05/energia_01.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2021/05/energia_02.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2021/05/energia_03.jpg"
+  ],
+  "ferrocarril": [
+    "https://akhydra.com.ar/wp-content/uploads/2023/08/ferrocarril_01.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/ferrocaril_02.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/ferrocaril_03.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/ferrocaril_04.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2023/10/ferrocarril_01-1024x528.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2023/10/ferrocarril_02-1024x576.jpg"
+  ],
+  "geologia": [
+    "https://akhydra.com.ar/wp-content/uploads/2023/10/geologia_2023-1024x472.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2022/08/geologia_02.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/geologia.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2024/07/Geologia-1-1024x683.jpeg",
+    "https://akhydra.com.ar/wp-content/uploads/2024/07/Geologia-2-790x1024.jpeg",
+    "https://akhydra.com.ar/wp-content/uploads/2024/07/Geologia-3-701x1024.jpeg",
+    "https://akhydra.com.ar/wp-content/uploads/2024/07/Geologia-4-744x1024.jpeg",
+    "https://akhydra.com.ar/wp-content/uploads/2025/03/SGH.png"
+  ],
+  "geotecnia": [
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/geotecnia.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2025/01/GEOTECNIA.2.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/geotecnia_01.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2025/01/GEOTECNIA.1.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/geotecnia_03.jpg"
+  ],
+  "gestoria": [
+    "http://akhydra.com.ar/wp-content/uploads/2023/03/MINAMB_BAP_color-768x192.png",
+    "http://akhydra.com.ar/wp-content/uploads/2023/03/LOGO-ADA-1024x1024.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2023/03/MINAMB_BAP_color-300x75.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2023/07/gestoria_01.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2023/07/gestoria_02.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2023/07/gestoria_03.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2023/07/gestoria_04.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2023/07/gestoria_05.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2023/07/gestoria_06-611x1024.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2023/07/gestoria_07.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2023/07/gestoria_08.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2023/07/gestoria_09.jpg"
+  ],
+  "hidraulica": [
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/hidraulica_01.png",
+    "https://akhydra.com.ar/wp-content/uploads/2022/08/hidraulica_00.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/hidraulica_02.png",
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/hidraulica_03.png"
+  ],
+  "higiene": [
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/seguridad_01.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/seguridad_02.jpg"
+  ],
+  "industrial": [
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/industrial_01.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/industrial_02.jpg"
+  ],
+  "mecanica": [
+    "http://akhydra.com.ar/wp-content/uploads/2021/06/refrigeracion.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2021/06/kelvineau-1024x448.png",
+    "http://akhydra.com.ar/wp-content/uploads/2021/06/mecanica.jpeg"
+  ],
+  "sanitaria": [
+    "https://akhydra.com.ar/wp-content/uploads/2022/11/sanitaria-1024x471.jpeg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/asequia.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/drenaje_urbano1.jpg",
+    "https://akhydra.com.ar/wp-content/uploads/2021/06/agua1.jpg"
+  ],
+  "vial": [
+    "http://akhydra.com.ar/wp-content/uploads/2022/11/Vial-1-1024x576.jpeg",
+    "http://akhydra.com.ar/wp-content/uploads/2022/11/Vial-2-1024x472.jpeg",
+    "http://akhydra.com.ar/wp-content/uploads/2022/11/Vial-3-1024x471.jpeg",
+    "http://akhydra.com.ar/wp-content/uploads/2021/06/pavimento_1.jpg",
+    "http://akhydra.com.ar/wp-content/uploads/2021/06/pavimento.png"
+  ]
+}

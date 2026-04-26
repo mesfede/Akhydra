@@ -2,6 +2,7 @@ import { FieldValue } from 'firebase/firestore';
 
 export interface Project {
   id?: string;
+  order?: number;
   title: string;
   location: string;
   mainArea: string;
