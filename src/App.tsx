@@ -348,73 +348,88 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Ensure menu closes strictly on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setAreasOpen(false);
+  }, [location.pathname]);
+
   const isHome = location.pathname === '/';
 
   return (
-    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled || !isHome ? 'bg-white/95 backdrop-blur-md border-b border-primary/10 py-4 shadow-md' : 'bg-transparent py-8'}`}>
-      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-        <div className="flex items-center">
-          <AnimatedLogo />
-        </div>
-
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-          <Link to="/" className="hover:text-accent transition-colors">Home</Link>
-          <Link to="/#nosotros" className="hover:text-accent transition-colors">Nosotros</Link>
-          
-          {/* Areas Dropdown */}
-          <div 
-            className="relative"
-            onMouseEnter={() => setAreasOpen(true)}
-            onMouseLeave={() => setAreasOpen(false)}
-          >
-            <button className={`flex items-center gap-1 hover:text-accent transition-colors ${areasOpen || location.pathname.startsWith('/area/') ? 'text-accent' : ''}`}>
-              Áreas <ChevronDown size={14} className={`transition-transform duration-300 ${areasOpen ? 'rotate-180' : ''}`} />
-            </button>
-            <AnimatePresence>
-              {areasOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="absolute top-full -left-1/2 mt-4 w-[450px] bg-white rounded-xl shadow-2xl border border-primary/5 p-6 grid grid-cols-2 gap-x-8 gap-y-2"
-                >
-                  {areasData.map((area) => (
-                    <Link 
-                      key={area.id} 
-                      to={`/area/${area.id}`} 
-                      className="text-primary/70 hover:text-accent hover:translate-x-1 transition-all py-1.5 text-xs font-semibold uppercase tracking-wider block border-b border-transparent hover:border-accent/10"
-                      onClick={() => setAreasOpen(false)}
-                    >
-                      {area.name}
-                    </Link>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
+    <>
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled || !isHome ? 'bg-white/95 backdrop-blur-md border-b border-primary/10 py-4 shadow-md' : 'bg-transparent py-8'}`}>
+        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative z-50">
+          <div className="flex items-center">
+            <AnimatedLogo />
           </div>
 
-          <Link to="/#proyectos" className="hover:text-accent transition-colors">Proyectos</Link>
-          <Link to="/#contacto" className="hover:text-accent transition-colors">
-            <Button variant="default" className="bg-accent hover:bg-accent/90 text-white font-bold">Contacto</Button>
-          </Link>
-        </div>
+          <div className="hidden md:flex items-center gap-8 text-sm font-medium">
+            <Link to="/" className="hover:text-accent transition-colors">Home</Link>
+            <Link to="/#nosotros" className="hover:text-accent transition-colors">Nosotros</Link>
+            
+            {/* Areas Dropdown */}
+            <div 
+              className="relative"
+              onMouseEnter={() => setAreasOpen(true)}
+              onMouseLeave={() => setAreasOpen(false)}
+            >
+              <button className={`flex items-center gap-1 hover:text-accent transition-colors ${areasOpen || location.pathname.startsWith('/area/') ? 'text-accent' : ''}`}>
+                Áreas <ChevronDown size={14} className={`transition-transform duration-300 ${areasOpen ? 'rotate-180' : ''}`} />
+              </button>
+              <AnimatePresence>
+                {areasOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute top-full -left-1/2 mt-4 w-[450px] bg-white rounded-xl shadow-2xl border border-primary/5 p-6 grid grid-cols-2 gap-x-8 gap-y-2 cursor-default"
+                  >
+                    {areasData.map((area) => (
+                      <Link 
+                        key={area.id} 
+                        to={`/area/${area.id}`} 
+                        className="text-primary/70 hover:text-accent hover:translate-x-1 transition-all py-1.5 text-xs font-semibold uppercase tracking-wider block border-b border-transparent hover:border-accent/10"
+                        onClick={() => setAreasOpen(false)}
+                      >
+                        {area.name}
+                      </Link>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
-        <button className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
-          <Menu size={24} />
-        </button>
-      </div>
+            <Link to="/#proyectos" className="hover:text-accent transition-colors">Proyectos</Link>
+            <Link to="/#contacto" className="hover:text-accent transition-colors">
+              <Button variant="default" className="bg-accent hover:bg-accent/90 text-white font-bold">Contacto</Button>
+            </Link>
+          </div>
+
+          <button className="md:hidden p-3 -mr-3 text-primary hover:text-accent transition-colors active:scale-95 cursor-pointer relative z-[60]" onClick={() => setMobileMenuOpen(true)} aria-label="Abrir menú">
+            <Menu size={32} />
+          </button>
+        </div>
+      </nav>
 
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div 
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            className="fixed inset-0 bg-white z-[60] p-6 flex flex-col overflow-y-auto"
+            initial={{ x: '100%', opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: '100%', opacity: 0 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed inset-0 bg-white z-[100] p-6 flex flex-col overflow-y-auto"
           >
             <div className="flex justify-between items-center mb-8">
               <AnimatedLogo onClick={() => setMobileMenuOpen(false)} />
-              <button onClick={() => setMobileMenuOpen(false)}><X size={32} /></button>
+              <button 
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-3 -mr-3 text-primary hover:text-accent/80 transition-colors active:scale-95 cursor-pointer"
+                aria-label="Cerrar menú"
+              >
+                <X size={36} />
+              </button>
             </div>
             
             <div className="flex flex-col gap-6 font-display font-bold">
@@ -428,24 +443,31 @@ const Navbar = () => {
                 >
                   Áreas <ChevronDown className={`transition-transform ${areasOpen ? 'rotate-180' : ''}`} />
                 </button>
-                {areasOpen && (
-                  <div className="grid grid-cols-1 gap-2 pl-4 border-l-2 border-accent/20">
-                    {areasData.map((area) => (
-                      <Link key={area.id} to={`/area/${area.id}`} className="text-lg font-normal text-primary/60 hover:text-accent" onClick={() => setMobileMenuOpen(false)}>{area.name}</Link>
-                    ))}
-                  </div>
-                )}
+                <AnimatePresence>
+                  {areasOpen && (
+                    <motion.div 
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="grid grid-cols-1 gap-2 pl-4 border-l-2 border-accent/20 overflow-hidden"
+                    >
+                      {areasData.map((area) => (
+                        <Link key={area.id} to={`/area/${area.id}`} className="text-lg font-normal text-primary/60 hover:text-accent" onClick={() => setMobileMenuOpen(false)}>{area.name}</Link>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               <Link to="/#proyectos" className="text-2xl" onClick={() => setMobileMenuOpen(false)}>Proyectos</Link>
               <Link to="/#contacto" onClick={() => setMobileMenuOpen(false)} className="mt-4">
-                <Button size="lg" className="w-full bg-accent text-white font-bold">Contacto</Button>
+                <Button size="lg" className="w-full bg-accent hover:bg-accent/90 text-white font-bold h-14 text-lg">Contacto</Button>
               </Link>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
+    </>
   );
 };const Hero = () => {
   const targetRef = useRef<HTMLDivElement>(null);
@@ -3003,7 +3025,7 @@ const AdminPanelPlaceholder = () => {
 
 export default function App() {
   const [showWelcome, setShowWelcome] = useState(true);
-  const basename = import.meta.env.BASE_URL.replace(/\/$/, '');
+  const basename = (import.meta as any).env.BASE_URL.replace(/\/$/, '');
   return (
     <Router basename={basename}>
       {showWelcome && (
@@ -3028,7 +3050,7 @@ export default function App() {
              </div>
              <div className="relative z-10 flex flex-col items-center">
                <img src="https://akhydra.com.ar/wp-content/uploads/2025/11/logo-akhydra-vect.svg" alt="logo" className="h-20 mx-auto mb-8" />
-               <h2 className="text-2xl sm:text-3xl font-bold text-primary mb-6 whitespace-nowrap">¡Bienvenido a nuestra nueva web!</h2>
+               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-primary mb-6 sm:whitespace-nowrap">¡Bienvenido a nuestra nueva web!</h2>
                <p className="text-lg text-primary/70 mb-8 max-w-lg mx-auto">Rediseñamos nuestra web para mejorar la navegación, potenciar la visualización de proyectos y brindarte un acceso más claro a nuestras soluciones en ingeniería.</p>
                <motion.button 
                  whileHover={{ scale: 1.05 }} 
