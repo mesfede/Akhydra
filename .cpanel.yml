@@ -1,5 +1,7 @@
 ---
 deployment:
   tasks:
-     - export DEPLOYPATH=/home/akhydrac/public_html/nuevaweb/
-     - /bin/cp -R dist/* $DEPLOYPATH
+    - export DEPLOYPATH=/home/akhydrac/public_html/nuevaweb/
+    - /usr/local/bin/npm install
+    - /usr/local/bin/npm run build
+    - /bin/cp -R dist/* $DEPLOYPATH
