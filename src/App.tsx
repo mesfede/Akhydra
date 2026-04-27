@@ -358,6 +358,7 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
+          <button onClick={() => alert('¡Prueba funciona!')} className="hover:text-accent transition-colors">Prueba</button>
           <Link to="/" className="hover:text-accent transition-colors">Home</Link>
           <Link to="/#nosotros" className="hover:text-accent transition-colors">Nosotros</Link>
           
@@ -418,6 +419,7 @@ const Navbar = () => {
             </div>
             
             <div className="flex flex-col gap-6 font-display font-bold">
+              <button className="text-2xl text-left" onClick={() => { alert('¡Prueba funciona!'); setMobileMenuOpen(false); }}>Prueba</button>
               <Link to="/" className="text-2xl" onClick={() => setMobileMenuOpen(false)}>Home</Link>
               <Link to="/#nosotros" className="text-2xl" onClick={() => setMobileMenuOpen(false)}>Nosotros</Link>
               
@@ -2631,10 +2633,27 @@ const AdminPanel = () => {
           <p className="text-primary/60">Agrega, edita o elimina los proyectos que se muestran en la web.</p>
         </div>
         <div className="flex flex-wrap gap-4">
-          <Button onClick={seedSampleData} disabled={saving} variant="outline" className="border-accent text-accent hover:bg-accent/5">
-            {saving ? 'Procesando...' : 'Cargar Ejemplo Automático'}
+          <Button 
+            onClick={() => {
+              setEditingId(null);
+              setFormData({
+                title: '', location: '', mainArea: '', order: undefined, description: '', mainImage: '', gallery: [],
+                details: { hidraulica: '', vial: '', ambiental: '' }, createdAt: null, updatedAt: null
+              });
+              window.scrollTo({ top: 300, behavior: 'smooth' });
+            }}
+            className="bg-accent hover:bg-accent/90 text-white font-bold px-6 h-12 rounded-xl flex items-center gap-2 shadow-lg shadow-accent/20"
+          >
+            <Plus size={18} />
+            Nuevo Proyecto (Test)
           </Button>
-          <Button onClick={() => signOut(auth)} variant="ghost" className="text-red-500/60 hover:text-red-500 hover:bg-red-50">Cerrar Sesión</Button>
+          <Button onClick={() => alert('¡Prueba funciona!')} variant="secondary" className="h-12 px-6 rounded-xl bg-yellow-500 text-white hover:bg-yellow-600">
+            Prueba
+          </Button>
+          <Button onClick={seedSampleData} disabled={saving} variant="outline" className="border-primary/10 text-primary/60 hover:bg-primary/5 h-12 px-6 rounded-xl">
+            {saving ? 'Procesando...' : 'Cargar Ejemplo'}
+          </Button>
+          <Button onClick={() => signOut(auth)} variant="ghost" className="text-red-500/60 hover:text-red-500 hover:bg-red-50 h-12 px-6 rounded-xl">Cerrar Sesión</Button>
         </div>
       </div>
 
