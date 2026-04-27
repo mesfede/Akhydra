@@ -3008,13 +3008,36 @@ export default function App() {
     <Router basename={basename}>
       {showWelcome && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-primary/80 backdrop-blur-sm">
-           <div className="bg-white rounded-3xl p-12 max-w-lg w-full text-center shadow-2xl relative overflow-hidden">
-             <div className="absolute inset-0 z-0 opacity-10 bg-cover bg-center" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=800")' }} />
-             <div className="relative z-10">
+           <div className="bg-white rounded-3xl p-12 max-w-2xl w-full text-center shadow-2xl relative overflow-hidden ring-1 ring-white/20">
+             <div className="absolute inset-0 pointer-events-none overflow-hidden">
+               <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(#000 1.5px, transparent 1.5px), linear-gradient(90deg, #000 1.5px, transparent 1.5px)', backgroundSize: '30px 30px' }} />
+               <motion.div 
+                 animate={{ top: ['-10%', '110%'] }} 
+                 transition={{ repeat: Infinity, duration: 8, ease: "linear" }} 
+                 className="absolute left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-accent/20 to-transparent" 
+               />
+               <motion.div 
+                 animate={{ left: ['-10%', '110%'] }} 
+                 transition={{ repeat: Infinity, duration: 12, ease: "linear" }} 
+                 className="absolute top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-primary/10 to-transparent" 
+               />
+               <motion.svg className="absolute w-full h-full opacity-10" viewBox="0 0 400 400">
+                 <motion.circle cx="50" cy="50" r="100" stroke="#2b388f" strokeWidth="1" fill="none" animate={{ rotate: 360, strokeDashoffset: -100 }} strokeDasharray="5 15" transition={{ repeat: Infinity, duration: 40, ease: "linear" }} />
+                 <motion.circle cx="350" cy="350" r="150" stroke="#2b388f" strokeWidth="1" fill="none" animate={{ rotate: -360, strokeDashoffset: 100 }} strokeDasharray="10 30" transition={{ repeat: Infinity, duration: 50, ease: "linear" }} />
+               </motion.svg>
+             </div>
+             <div className="relative z-10 flex flex-col items-center">
                <img src="https://akhydra.com.ar/wp-content/uploads/2025/11/logo-akhydra-vect.svg" alt="logo" className="h-20 mx-auto mb-8" />
-               <h2 className="text-3xl font-bold text-primary mb-6">¡Bienvenido al nuevo portal de AKHYDRA Ingeniería!</h2>
-               <p className="text-lg text-primary/70 mb-8">Hemos renovado nuestra estética web para ofrecerte una mejor experiencia, ahora integrando fácilmente todos nuestros proyectos directamente en el inicio.</p>
-               <Button onClick={() => setShowWelcome(false)} className="bg-accent text-white px-8 py-3 rounded-xl font-bold">Explorar ahora</Button>
+               <h2 className="text-2xl sm:text-3xl font-bold text-primary mb-6 whitespace-nowrap">¡Bienvenido a nuestra nueva web!</h2>
+               <p className="text-lg text-primary/70 mb-8 max-w-lg mx-auto">Rediseñamos nuestra web para mejorar la navegación, potenciar la visualización de proyectos y brindarte un acceso más claro a nuestras soluciones en ingeniería.</p>
+               <motion.button 
+                 whileHover={{ scale: 1.05 }} 
+                 whileTap={{ scale: 0.95 }}
+                 onClick={() => setShowWelcome(false)} 
+                 className="bg-accent hover:bg-accent/90 text-white px-8 py-3 rounded-xl font-bold shadow-lg cursor-pointer"
+               >
+                 Te invitamos a descubrirla.
+               </motion.button>
              </div>
            </div>
         </div>
