@@ -358,7 +358,6 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-          <button onClick={() => alert('¡Prueba funciona!')} className="hover:text-accent transition-colors">Prueba</button>
           <Link to="/" className="hover:text-accent transition-colors">Home</Link>
           <Link to="/#nosotros" className="hover:text-accent transition-colors">Nosotros</Link>
           
@@ -419,7 +418,6 @@ const Navbar = () => {
             </div>
             
             <div className="flex flex-col gap-6 font-display font-bold">
-              <button className="text-2xl text-left" onClick={() => { alert('¡Prueba funciona!'); setMobileMenuOpen(false); }}>Prueba</button>
               <Link to="/" className="text-2xl" onClick={() => setMobileMenuOpen(false)}>Home</Link>
               <Link to="/#nosotros" className="text-2xl" onClick={() => setMobileMenuOpen(false)}>Nosotros</Link>
               
@@ -3004,9 +3002,23 @@ const AdminPanelPlaceholder = () => {
 };
 
 export default function App() {
+  const [showWelcome, setShowWelcome] = useState(true);
   const basename = import.meta.env.BASE_URL.replace(/\/$/, '');
   return (
     <Router basename={basename}>
+      {showWelcome && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-primary/80 backdrop-blur-sm">
+           <div className="bg-white rounded-3xl p-12 max-w-lg w-full text-center shadow-2xl relative overflow-hidden">
+             <div className="absolute inset-0 z-0 opacity-10 bg-cover bg-center" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=800")' }} />
+             <div className="relative z-10">
+               <img src="https://akhydra.com.ar/wp-content/uploads/2025/11/logo-akhydra-vect.svg" alt="logo" className="h-20 mx-auto mb-8" />
+               <h2 className="text-3xl font-bold text-primary mb-6">¡Bienvenido al nuevo portal de AKHYDRA Ingeniería!</h2>
+               <p className="text-lg text-primary/70 mb-8">Hemos renovado nuestra estética web para ofrecerte una mejor experiencia, ahora integrando fácilmente todos nuestros proyectos directamente en el inicio.</p>
+               <Button onClick={() => setShowWelcome(false)} className="bg-accent text-white px-8 py-3 rounded-xl font-bold">Explorar ahora</Button>
+             </div>
+           </div>
+        </div>
+      )}
       <ScrollToTop />
       <div className="min-h-screen flex flex-col">
         <Navbar />
