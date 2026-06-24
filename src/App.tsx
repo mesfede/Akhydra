@@ -1132,11 +1132,11 @@ const About = () => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden z-10"
+              className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-y-auto max-h-[90vh] z-10"
             >
               <button 
                 onClick={() => setSelectedMember(null)}
-                className="absolute top-6 right-6 w-10 h-10 rounded-full bg-surface border border-primary/5 flex items-center justify-center text-primary group hover:bg-accent hover:text-white transition-all z-20"
+                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-surface border border-primary/5 flex items-center justify-center text-primary group hover:bg-accent hover:text-white transition-all z-20"
               >
                 <X size={20} />
               </button>
@@ -1154,7 +1154,7 @@ const About = () => {
                   <h4 className="text-xl font-bold text-primary mb-2 leading-tight">{selectedMember.name}</h4>
                   <Badge variant="outline" className="border-accent/30 text-accent font-bold uppercase text-[10px] tracking-widest">{selectedMember.role.split(' / ')[1]}</Badge>
                 </div>
-                <div className="md:col-span-3 p-10 flex flex-col justify-center">
+                <div className="md:col-span-3 p-6 md:p-10 flex flex-col justify-center">
                   <div className="flex items-center gap-2 mb-6">
                     <div className="h-[1px] w-8 bg-accent" />
                     <span className="text-xs font-mono font-bold text-accent uppercase tracking-widest">Currículum Vitae</span>
@@ -1703,7 +1703,7 @@ const Projects = () => {
                       </Badge>
                     </div>
                   </div>
-                  <h3 className="text-xl font-bold mb-2 text-primary group-hover:text-accent transition-colors">{p.title}</h3>
+                  <h3 className="text-base sm:text-lg lg:text-xl font-bold mb-2 text-primary group-hover:text-accent transition-colors line-clamp-2">{p.title}</h3>
                   <p className="text-sm text-primary/50 font-mono font-bold">{p.location}</p>
                 </Link>
               ))
@@ -2089,7 +2089,7 @@ const PortfolioPage = () => {
                       </div>
                     </div>
                     <div className="space-y-3 px-2">
-                      <h3 className="text-2xl font-bold text-primary group-hover:text-accent transition-colors leading-tight">
+                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-primary group-hover:text-accent transition-colors leading-tight line-clamp-2">
                         {p.title}
                       </h3>
                       <div className="flex items-center gap-2 text-primary/40 font-mono text-xs uppercase tracking-widest font-bold">
@@ -2247,7 +2247,7 @@ const ProjectDetailPage = () => {
                 <RenderMainArea mainArea={project.mainArea} />
               </Badge>
             </div>
-            <h1 className="text-5xl md:text-7xl font-display font-bold text-white mb-6 uppercase tracking-tighter leading-[0.9]">
+            <h1 className="text-3xl sm:text-5xl md:text-7xl font-display font-bold text-white mb-6 uppercase tracking-tighter leading-[0.9]">
               {project.title}
             </h1>
             <div className="flex items-center gap-4 text-white/90 font-bold mb-8">
@@ -3024,7 +3024,7 @@ const AdminPanelPlaceholder = () => {
 };
 
 export default function App() {
-  const [showWelcome, setShowWelcome] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(false);
   const basename = (import.meta as any).env.BASE_URL.replace(/\/$/, '');
   return (
     <Router basename={basename}>
@@ -3475,7 +3475,7 @@ const AreaDetail = () => {
                       />
                       <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
-                    <h4 className="font-bold text-white group-hover:text-accent transition-colors truncate">{p.title}</h4>
+                    <h4 className="font-bold text-white group-hover:text-accent transition-colors line-clamp-2">{p.title}</h4>
                     <div className="text-white/40 text-[10px] font-mono mt-1 uppercase">{p.location}</div>
                   </Link>
                 </motion.div>
