@@ -18,6 +18,7 @@ import {
   Phone, 
   MapPin,
   Upload,
+  Download,
   Globe,
   CheckCircle2,
   ChevronDown,
@@ -340,12 +341,20 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [areasOpen, setAreasOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setIsAdmin(!!u);
+    });
+    return () => unsubscribe();
   }, []);
 
   // Ensure menu closes strictly on route change
@@ -401,6 +410,15 @@ const Navbar = () => {
             </div>
 
             <Link to="/#proyectos" className="hover:text-accent transition-colors">Proyectos</Link>
+            {isAdmin && (
+              <Link to="/admin" className="text-accent hover:text-accent/80 transition-colors font-bold flex items-center gap-1.5 bg-accent/10 px-3 py-1.5 rounded-lg">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                Panel Admin
+              </Link>
+            )}
             <Link to="/#contacto" className="hover:text-accent transition-colors">
               <Button variant="default" className="bg-accent hover:bg-accent/90 text-white font-bold">Contacto</Button>
             </Link>
@@ -460,6 +478,15 @@ const Navbar = () => {
               </div>
 
               <Link to="/#proyectos" className="text-2xl" onClick={() => setMobileMenuOpen(false)}>Proyectos</Link>
+              {isAdmin && (
+                <Link to="/admin" className="text-2xl text-accent flex items-center gap-2.5 bg-accent/5 p-4 rounded-2xl" onClick={() => setMobileMenuOpen(false)}>
+                  <span className="relative flex h-3.5 w-3.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500"></span>
+                  </span>
+                  Panel Administrador
+                </Link>
+              )}
               <Link to="/#contacto" onClick={() => setMobileMenuOpen(false)} className="mt-4">
                 <Button size="lg" className="w-full bg-accent hover:bg-accent/90 text-white font-bold h-14 text-lg">Contacto</Button>
               </Link>
@@ -2391,6 +2418,77 @@ const AdminPanel = () => {
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const downloadBackup = () => {
+    try {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(projects, null, 2));
+      const downloadAnchor = document.createElement('a');
+      const dateStr = new Date().toISOString().split('T')[0];
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `backup-proyectos-${dateStr}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    } catch (error) {
+      console.error("Error creating backup:", error);
+      alert("Error al generar la descarga del backup.");
+    }
+  };
+
+  const handleImportBackup = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const importedProjects = JSON.parse(text);
+
+      if (!Array.isArray(importedProjects)) {
+        throw new Error("El archivo no contiene una lista válida de proyectos.");
+      }
+
+      for (const p of importedProjects) {
+        if (!p.title || !p.location || !p.mainArea) {
+          throw new Error("Algunos proyectos del archivo de backup no tienen los campos requeridos (título, ubicación o áreas).");
+        }
+      }
+
+      const confirmRestore = window.confirm(
+        `Se encontraron ${importedProjects.length} proyectos en el archivo. ¿Estás seguro de que deseas importarlos? Esto agregará los proyectos a la base de datos actual (los duplicados con el mismo título no serán sobrescritos automáticamente).`
+      );
+
+      if (!confirmRestore) {
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+
+      setSaving(true);
+      let importedCount = 0;
+
+      for (const p of importedProjects) {
+        const { id, ...projectData } = p;
+        const finalProject = {
+          ...projectData,
+          createdAt: projectData.createdAt || serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        };
+
+        await addDoc(collection(db, 'projects'), finalProject);
+        importedCount++;
+      }
+
+      await fetchProjects();
+      alert(`¡Éxito! Se han importado ${importedCount} proyectos correctamente.`);
+    } catch (error) {
+      console.error("Error al importar el backup:", error);
+      alert("Error al importar el backup: " + (error instanceof Error ? error.message : "Error desconocido."));
+    } finally {
+      setSaving(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   const [formData, setFormData] = useState<Project>({
     title: '',
     location: '',
@@ -2662,18 +2760,36 @@ const AdminPanel = () => {
               });
               window.scrollTo({ top: 300, behavior: 'smooth' });
             }}
-            className="bg-accent hover:bg-accent/90 text-white font-bold px-6 h-12 rounded-xl flex items-center gap-2 shadow-lg shadow-accent/20"
+            className="bg-accent hover:bg-accent/90 text-white font-bold px-4 h-9 rounded-lg text-sm flex items-center gap-1.5 shadow-md shadow-accent/10"
           >
-            <Plus size={18} />
-            Nuevo Proyecto (Test)
+            <Plus size={16} />
+            Nuevo Proyecto
           </Button>
-          <Button onClick={() => alert('¡Prueba funciona!')} variant="secondary" className="h-12 px-6 rounded-xl bg-yellow-500 text-white hover:bg-yellow-600">
-            Prueba
+          <Button 
+            onClick={downloadBackup}
+            variant="outline" 
+            className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-700 h-9 px-4 rounded-lg text-sm flex items-center gap-1.5 font-bold shadow-sm"
+          >
+            <Download size={16} />
+            Descargar Backup
           </Button>
-          <Button onClick={seedSampleData} disabled={saving} variant="outline" className="border-primary/10 text-primary/60 hover:bg-primary/5 h-12 px-6 rounded-xl">
-            {saving ? 'Procesando...' : 'Cargar Ejemplo'}
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleImportBackup} 
+            accept=".json" 
+            className="hidden" 
+          />
+          <Button 
+            onClick={() => fileInputRef.current?.click()}
+            variant="outline" 
+            className="border-green-200 text-green-600 hover:bg-green-50 hover:text-green-700 h-9 px-4 rounded-lg text-sm flex items-center gap-1.5 font-bold shadow-sm"
+            disabled={saving}
+          >
+            <Upload size={16} />
+            Restaurar Backup
           </Button>
-          <Button onClick={() => signOut(auth)} variant="ghost" className="text-red-500/60 hover:text-red-500 hover:bg-red-50 h-12 px-6 rounded-xl">Cerrar Sesión</Button>
+          <Button onClick={() => signOut(auth)} variant="ghost" className="text-red-500/60 hover:text-red-500 hover:bg-red-50 h-9 px-4 rounded-lg text-sm">Cerrar Sesión</Button>
         </div>
       </div>
 
@@ -3023,6 +3139,93 @@ const AdminPanelPlaceholder = () => {
   return null;
 };
 
+const AdminSessionIndicator = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [confirmLogout, setConfirmLogout] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    setConfirmLogout(false);
+  }, [location.pathname]);
+
+  if (!user) return null;
+  if (location.pathname === '/admin') return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 50, scale: 0.9 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 50, scale: 0.9 }}
+      className="fixed bottom-6 right-6 left-6 sm:left-auto sm:w-[350px] z-[99] bg-white/95 backdrop-blur-md border border-primary/10 p-4 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.15)] flex flex-col gap-3"
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+          </span>
+          <span className="text-xs font-bold text-primary/80 uppercase tracking-wider font-mono">Sesión de Admin Activa</span>
+        </div>
+        <span className="text-[10px] text-primary/40 font-mono truncate max-w-[150px]">{user.email}</span>
+      </div>
+      
+      <p className="text-xs text-primary/60 font-medium">
+        Recuerda cerrar sesión al finalizar tus tareas por seguridad.
+      </p>
+      
+      <div className="flex gap-2">
+        <Link to="/admin" className="flex-grow">
+          <Button variant="outline" className="w-full h-9 text-xs font-bold border-primary/10 hover:bg-primary/5 text-primary rounded-xl flex items-center justify-center gap-1.5">
+            <Cog size={14} />
+            Panel de Control
+          </Button>
+        </Link>
+        {confirmLogout ? (
+          <div className="flex gap-1 shrink-0">
+            <Button 
+              onClick={async () => {
+                try {
+                  await signOut(auth);
+                  navigate('/');
+                } catch (error) {
+                  console.error("Error signing out:", error);
+                }
+              }}
+              variant="destructive" 
+              className="h-9 px-3 text-xs font-bold bg-red-600 hover:bg-red-700 text-white rounded-xl flex items-center gap-1 shrink-0"
+            >
+              Sí, salir
+            </Button>
+            <Button 
+              onClick={() => setConfirmLogout(false)}
+              variant="outline" 
+              className="h-9 px-2 text-xs font-bold border-primary/10 hover:bg-primary/5 text-primary rounded-xl shrink-0"
+            >
+              No
+            </Button>
+          </div>
+        ) : (
+          <Button 
+            onClick={() => setConfirmLogout(true)}
+            variant="destructive" 
+            className="h-9 px-4 text-xs font-bold bg-red-500 hover:bg-red-600 text-white rounded-xl flex items-center gap-1.5 shrink-0"
+          >
+            Cerrar Sesión
+          </Button>
+        )}
+      </div>
+    </motion.div>
+  );
+};
+
 export default function App() {
   const [showWelcome, setShowWelcome] = useState(false);
   const basename = (import.meta as any).env.BASE_URL.replace(/\/$/, '');
@@ -3065,6 +3268,7 @@ export default function App() {
         </div>
       )}
       <ScrollToTop />
+      <AdminSessionIndicator />
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-grow">
